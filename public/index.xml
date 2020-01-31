@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Sophie Bennett</title>
+    <link>/</link>
+    <description>Recent content on Sophie Bennett</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 31 Jan 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>The Hottest Tube Line: Modelling Tube Temperatures in R</title>
+      <link>/posts/tube_temperatures/</link>
+      <pubDate>Fri, 31 Jan 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/posts/tube_temperatures/</guid>
+      <description>Now, I’m the kind of big tube fanatic who has completed the “Can you name all the stations on the London Underground?” sporcle quiz more times than I can count. But even I have to acknowledge one major drawback of the london tube: it can get really hot down there!
+I’ve long suspected the Central line of being the biggest offender in this department, putting it near the bottom in my ranking of favourite tube lines.</description>
+    </item>
+    
+    <item>
+      <title>About Me</title>
+      <link>/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/about/</guid>
+      <description>I am a data scientist based in London working in the EdTech sector, where, amongst other things, I use data to improve instruction and curriculum design.
+I am passionate about increasing the use of evidence and statistics to guide social policy. I spend much of my free time working with publically available datasets to explore London demographics, social issues and infrastructure. I mainly code in R and particularly enjoy data visualisation.</description>
+    </item>
+    
+    <item>
+      <title>Contact</title>
+      <link>/contact/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/contact/</guid>
+      <description>Follow me, @SophieHeloise.</description>
+    </item>
+    
+    <item>
+      <title>Projects</title>
+      <link>/projects/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/projects/</guid>
+      <description>Nothing to see here&amp;hellip; Move along!</description>
+    </item>
+    
+  </channel>
+</rss>
