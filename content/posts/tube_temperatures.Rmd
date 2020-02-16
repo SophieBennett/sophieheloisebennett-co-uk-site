@@ -87,7 +87,7 @@ tube_temps %>%
         legend.key = element_rect(fill = "white"),
         legend.title = element_blank()) +
   scale_x_date(date_labels = "%Y (%b)", breaks = '1 year', expand = c(0.01,1)) +
-  guides(colour = guide_legend(nrow = 1))
+  guides(colour = guide_legend(nrow = 2))
 
 ```
 
@@ -121,7 +121,7 @@ tube_temps %>%
         legend.position = "bottom",
         legend.key = element_rect(fill = "white"),
         legend.title = element_blank()) +
-  guides(colour = guide_legend(nrow = 1))
+  guides(colour = guide_legend(nrow = 2))
 
 ```
 
