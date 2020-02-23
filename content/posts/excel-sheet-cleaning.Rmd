@@ -1,0 +1,317 @@
+---
+title: "Cleaning Dirty Excel Sheets in R"
+author: "Sophie Bennett"
+date: "23 Feb 2020"
+output: html_document
+---
+
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE, message = FALSE)
+```
+
+```{r dependencies, include = FALSE}
+
+library(readxl)
+library(tidyverse)
+library(flextable)
+
+```
+
+I spend a great deal of my spare time searching for, and playing with, open source data. Although it's great fun, a challenge of working with this kind of data is that it usually isn't stored in a tidy format. Very occasionally, I'll find a carefully constructed csv made by a generous soul, but most often what I get is a somewhat messy Excel file. 
+
+Messy data can come with a vast array of different problems. However, I've found that there are some key repeat offenders that tend to crop up time and time again with data stored in Excel files:
+
+1. Column titles spread across multiple rows
+2. Variables spread across multiple columns
+3. Data spread across multiple Excel sheets 
+4. Data are stored unevenly across Excel sheets 
+
+My solutions to these issues definitely aren't the only ones available, and probably aren't always the most elegant (if you have a more elegant solution please hit me up!). But, these solutions have served me pretty well, so I figured that they were worth sharing.
+
+To demonstrate my solutions to messy data, I'm using a station passengers number dataset I obtained from TfL. The data gives the average daily entries and exits for each tube station, from 2007-2017. (The data is available [here on the TfL website.)](https://tfl.gov.uk/corporate/publications-and-reports/underground-services-performance)
+
+This is what the dataset looks like in Excel: ![](/posts/excel-sheet-cleaning_files/passengerdata.PNG)
+
+Now, all 4 of the problems listed above appear in this dataset:
+
+1. The column titles are spread across 3 rows
+2. Two of our variables (day of the week and direction of flow) are spread across multiple columns
+3. The data for each year are spread across multiple Excel sheets ranging from 2007 to 2017
+4. Most annoyingly, the "borough" variable only appears in 2014, meaning that the total number of columns varies across sheets. 
+
+To go through these problems, I'm going to start by fixing *just* the 2017 sheet, and then look at how to extend the solution to clean multiple spreadsheets at once.
+
+## Problem 1: Column Titles Are Spread Across Mutiple Rows
+
+This is one of my least favourite problems, but also one of the most common. 
+
+Spreading column titles across multiple rows might more visually appealing if you're trying to report summary statistics, but it's a bummer if you want to do any analysis. Reading our sheet into R immediately reveals why this isn't ideal. 
+
+<div class="highlight">
+```{r}
+
+read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx", 
+           sheet = "2017 Entry & Exit", 
+           skip = 4) %>% 
+  head(5) %>% 
+  regulartable() %>% 
+  autofit()
+
+```
+</div>
+
+Blurgh. 
+
+If I'm feeling lazy, I'll sometimes avoid the problem altogether by skipping everything except the last row of column names when I read in the sheet, like _this_:
+
+```{r}
+
+read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx", 
+           sheet = "2017 Entry & Exit", 
+           skip = 6) %>% 
+  head(5) %>% 
+  regulartable() %>% 
+  autofit()
+
+```
+
+Unfortunately, the lazy option isn't going to fly with this data: if I skip the first row of the column names I wind up with repeat variable names, and there's no way to tell whether the columns correspond to entry or exit data. 
+
+So, we *do* need to get the full column names into R somehow... but how?
+
+First, we need to read the rows corresponding *just* to the column names into R.
+
+```{r}
+
+col_names <- read_excel(
+  "../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx",
+                        sheet = "2017 Entry & Exit",
+                        skip = 4, n_max = 2) 
+
+col_names %>% 
+  regulartable() %>% 
+  autofit()
+
+```
+
+At the moment, the column names are being stored as a two row dataframe. But, what we'll want is to extract these column names into a simple vector. We can do this using a combination of `paste()` and `unlist()` (a function that converts lists back into vectors).
+
+```{r}
+
+col_names <- paste(unlist(col_names[1,], use.names = FALSE), # extract first row 
+                  unlist(col_names[2,], use.names = FALSE), # extract second row 
+                  sep = "_")
+
+col_names 
+
+```
+
+We're now almost there, but some of the column names are a little gross because the first row of name was an NA value. To fix this, we can use the `str_remove()` function from the `stringr` package.
+
+```{r}
+
+col_names <- str_remove(col_names, "NA_")
+
+col_names 
+
+```
+
+Now that our column names are stored in a clean vector, all we need to do is supply these as the column names when we read in our sheet!
+
+```{r}
+
+read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx", 
+           sheet = "2017 Entry & Exit", 
+           skip = 7, 
+           col_names = col_names) %>% 
+  head(5) %>% 
+  regulartable() %>% 
+  autofit()
+
+```
+
+## Problem 2: Variables Are Spread Across Multiple Columns
+
+Right now, when we read in our data, we have *two* variables spread across 6 columns: type of day (Weekday vs Saturday vs Sunday), and direction of flow (Entry vs Exit). What we want is to simplify this to have one column for type of day, and one for direction of flow.
+
+Luckily, the `tidyr` package offers a simple fix in the form of the `gather()` function (which I understand is being superseded by `pivot_longer()`). 
+
+Now, if you just have *one* variable spread across multiple columns, you simply need to gather the columns into one in one short step. Here though, since we have *two* variables that are spread we'll need to perform one extra step.
+
+First, we need to gather all the misbehaving columns together into a 'key' column, specifying the type and day of passenger flow, and a 'value' column, giving the average number of passengers for each direction of flow and type of day.
+
+```{r}
+
+read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx", 
+           sheet = "2017 Entry & Exit", 
+           skip = 7, 
+           col_names = col_names) %>% 
+  gather("Entry_Weekday":"Exit_Sunday", key = "flow", value = "daily_passengers") %>% 
+  head(5) %>% 
+  regulartable() %>% 
+  autofit()
+
+```
+
+Next, we can use the `separate()` function to separate the flow column into two variables - one describing the direction of flow of the passengers, and one describing the type of day.
+
+```{r}
+
+read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx", 
+           sheet = "2017 Entry & Exit", 
+           skip = 7, 
+           col_names = col_names) %>% 
+  gather("Entry_Weekday":"Exit_Sunday", key = "flow", value = "daily_passengers") %>% 
+  separate(flow, into = c("flow_direction", "day_type"), sep = "_") %>% 
+  head(5) %>% 
+  regulartable() %>% 
+  autofit()
+                                                                  
+```
+
+That's one sheet fixed, only 10 more to go! 
+
+Now, we *could* just run the same code 10 more times to clean each sheet in the file... but that would be inefficient. Surely there's a better way?
+
+## Problem 3: Data Are Spread Across Multiple Sheets
+
+Here again, the tidyverse saves us with a function from the `purrr` package called `map()`. 
+
+`map()` is a neat function that lets you apply a function to each element of a list. 
+
+There are over 20 different variants of this function, but we'll be using `map_df()`. This variant of map takes the output of the mapping and combines it into a single dataframe.
+
+This means that we can turn our sheet cleaning steps into a function, and then use `map_df()` to run the function on each Excel sheet in one go.
+
+First, we need to turn the cleaning steps into a function. Along with the cleaning, I'm also adding a new variable, year, which we'll need when we combine the sheets into one dataframe.
+
+```{r}
+
+clean_sheets <- function(sheet) {
+  
+  # take the first four characters of each sheet to extract year 
+  year <- str_sub(sheet, 1, 4) 
+  
+  tbl <- read_excel(
+    "../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx", 
+                    sheet = sheet, 
+                    skip = 7,
+                    col_names = col_names) %>% 
+    gather("Entry_Weekday":"Exit_Sunday", key = "flow", value = "daily_passengers") %>% 
+    separate(flow, into = c("flow_direction", "day_type"), sep = "_") %>% 
+    mutate(year = year)
+  
+  tbl 
+  
+}
+
+```
+
+Next, we need to map the cleaning function onto each Excel sheet.
+
+To do this, we first need to create a vector with the names of all the Excel sheets to pass as an argument to `map_df()`. To show how this works, I'm going to start by just using the first three sheets of my Excel file containing the data from 2017-2015.
+
+```{r}
+
+recent_station_sheets <- paste(seq(from = 2015, to = 2017, by = 1), 
+                        rep("Entry & Exit", 3), 
+                        sep = " ")
+
+```
+
+Then, we simply pass the list of sheets, and the cleaning function to `map_df()`.
+
+```{r}
+
+station_flow <- map_df(recent_station_sheets, clean_sheets)
+
+station_flow %>% 
+  head(5) %>% 
+  regulartable() %>% 
+  autofit()
+
+```
+
+Giving us all the data from 2017-2015 in one clean, tidy dataframe!
+
+Now that we know the method works, we can apply the cleaning function to all 11 sheets at once:
+
+```{r, error = TRUE}
+
+# vector with the names of all 11 sheets
+station_sheets <- paste(seq(from = 2007, to = 2017, by = 1), 
+                        rep("Entry & Exit", 10), 
+                        sep = " ")
+
+station_flow <- map_df(station_sheets, clean_sheets)
+
+```
+
+Except... we get an error! So what's going wrong?
+
+## 4. Unequal Numbers of Columns Across Sheets
+
+A bit of detective work reveals that the "borough" variable is missing from the all the Excel sheets prior to 2015.
+
+This is why the previous step broke. In the previous cleaning function, we told R to use the `col_names` vector as the column names when reading in the Excel sheets. This works for the most recent sheets, which have 11 columns - the same as the length of the `col_names` vector. But, this breaks when we get to the 2014 sheet, which only has 10 columns.
+
+To get around this problem, we need to make a few adjustments to our function.
+
+```{r}
+
+# select just names for the 8 columns we need
+col_names <- col_names[c(1, 2, 5, 6, 7, 8, 9, 10)] 
+                  
+col_names[9] <- "year"
+
+clean_sheets <- function(sheet) {
+  
+  year <- str_sub(sheet, 1, 4) 
+  
+  tbl <- read_excel(
+    "../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx", 
+                    sheet = sheet, 
+                    skip = 6) %>% 
+    select(nlc,
+           Station,
+           contains("day") # select any col containing "day"
+           ) %>% 
+    mutate(year = year) 
+  
+  colnames(tbl) <- col_names 
+  
+  tbl
+  
+}
+
+```
+
+This time, I'm *not* passing the `col_names` vector in as the column names when I first read in the sheets. Instead, I read in the sheets using the bottom row of column titles. 
+
+Then, I remove any columns that I don't need, including the offending "borough" column. Instead, I select *just* the columns I want, meaning that each sheet will have the same number of columns. 
+
+At this point, I can modify the column names to those in our `col_names` vector.
+
+With this new and improved function, we can run `map_df()` again...
+
+```{r}
+
+station_flow <- map_df(station_sheets, clean_sheets)
+
+station_flow %>% 
+  head(5) %>% 
+  regulartable() %>% 
+  autofit()
+
+```
+
+Et voila! A nice tidy dataframe eagerly awaiting some plots and analysis. 
+
