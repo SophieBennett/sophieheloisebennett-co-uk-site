@@ -72,6 +72,7 @@ Blurgh.
 
 If I'm feeling lazy, I'll sometimes avoid the problem altogether by skipping everything except the last row of column names when I read in the sheet, like _this_:
 
+<div class="highlight">
 ```{r}
 
 read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx", 
@@ -82,6 +83,7 @@ read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.x
   autofit()
 
 ```
+</div>
 
 Unfortunately, the lazy option isn't going to fly with this data: if I skip the first row of the column names I wind up with repeat variable names, and there's no way to tell whether the columns correspond to entry or exit data. 
 
@@ -89,6 +91,7 @@ So, we *do* need to get the full column names into R somehow... but how?
 
 First, we need to read the rows corresponding *just* to the column names into R.
 
+<div class="highlight">
 ```{r}
 
 col_names <- read_excel(
@@ -101,9 +104,11 @@ col_names %>%
   autofit()
 
 ```
+</div>
 
 At the moment, the column names are being stored as a two row dataframe. But, what we'll want is to extract these column names into a simple vector. We can do this using a combination of `paste()` and `unlist()` (a function that converts lists back into vectors).
 
+<div class="highlight">
 ```{r}
 
 col_names <- paste(unlist(col_names[1,], use.names = FALSE), # extract first row 
@@ -113,9 +118,11 @@ col_names <- paste(unlist(col_names[1,], use.names = FALSE), # extract first row
 col_names 
 
 ```
+</div>
 
 We're now almost there, but some of the column names are a little gross because the first row of name was an NA value. To fix this, we can use the `str_remove()` function from the `stringr` package.
 
+<div class="highlight">
 ```{r}
 
 col_names <- str_remove(col_names, "NA_")
@@ -123,9 +130,11 @@ col_names <- str_remove(col_names, "NA_")
 col_names 
 
 ```
+</div>
 
 Now that our column names are stored in a clean vector, all we need to do is supply these as the column names when we read in our sheet!
 
+<div class="highlight">
 ```{r}
 
 read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx", 
@@ -137,6 +146,7 @@ read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.x
   autofit()
 
 ```
+</div>
 
 ## Problem 2: Variables Are Spread Across Multiple Columns
 
@@ -148,6 +158,7 @@ Now, if you just have *one* variable spread across multiple columns, you simply 
 
 First, we need to gather all the misbehaving columns together into a 'key' column, specifying the type and day of passenger flow, and a 'value' column, giving the average number of passengers for each direction of flow and type of day.
 
+<div class="highlight">
 ```{r}
 
 read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx", 
@@ -160,9 +171,11 @@ read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.x
   autofit()
 
 ```
+</div>
 
 Next, we can use the `separate()` function to separate the flow column into two variables - one describing the direction of flow of the passengers, and one describing the type of day.
 
+<div class="highlight">
 ```{r}
 
 read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.xlsx", 
@@ -176,6 +189,7 @@ read_excel("../../resources/tube-station-visits/station-entry-and-exit-figures.x
   autofit()
                                                                   
 ```
+</div>
 
 That's one sheet fixed, only 10 more to go! 
 
@@ -193,6 +207,7 @@ This means that we can turn our sheet cleaning steps into a function, and then u
 
 First, we need to turn the cleaning steps into a function. Along with the cleaning, I'm also adding a new variable, year, which we'll need when we combine the sheets into one dataframe.
 
+<div class="highlight">
 ```{r}
 
 clean_sheets <- function(sheet) {
@@ -214,11 +229,13 @@ clean_sheets <- function(sheet) {
 }
 
 ```
+</div>
 
 Next, we need to map the cleaning function onto each Excel sheet.
 
 To do this, we first need to create a vector with the names of all the Excel sheets to pass as an argument to `map_df()`. To show how this works, I'm going to start by just using the first three sheets of my Excel file containing the data from 2017-2015.
 
+<div class="highlight">
 ```{r}
 
 recent_station_sheets <- paste(seq(from = 2015, to = 2017, by = 1), 
@@ -226,9 +243,11 @@ recent_station_sheets <- paste(seq(from = 2015, to = 2017, by = 1),
                         sep = " ")
 
 ```
+</div>
 
 Then, we simply pass the list of sheets, and the cleaning function to `map_df()`.
 
+<div class="highlight">
 ```{r}
 
 station_flow <- map_df(recent_station_sheets, clean_sheets)
@@ -239,11 +258,13 @@ station_flow %>%
   autofit()
 
 ```
+</div>
 
 Giving us all the data from 2017-2015 in one clean, tidy dataframe!
 
 Now that we know the method works, we can apply the cleaning function to all 11 sheets at once:
 
+<div class="highlight">
 ```{r, error = TRUE}
 
 # vector with the names of all 11 sheets
@@ -254,6 +275,7 @@ station_sheets <- paste(seq(from = 2007, to = 2017, by = 1),
 station_flow <- map_df(station_sheets, clean_sheets)
 
 ```
+</div>
 
 Except... we get an error! So what's going wrong?
 
@@ -265,6 +287,7 @@ This is why the previous step broke. In the previous cleaning function, we told 
 
 To get around this problem, we need to make a few adjustments to our function.
 
+<div class="highlight">
 ```{r}
 
 # select just names for the 8 columns we need
@@ -293,6 +316,7 @@ clean_sheets <- function(sheet) {
 }
 
 ```
+</div>
 
 This time, I'm *not* passing the `col_names` vector in as the column names when I first read in the sheets. Instead, I read in the sheets using the bottom row of column titles. 
 
@@ -302,6 +326,7 @@ At this point, I can modify the column names to those in our `col_names` vector.
 
 With this new and improved function, we can run `map_df()` again...
 
+<div class="highlight">
 ```{r}
 
 station_flow <- map_df(station_sheets, clean_sheets)
@@ -312,6 +337,7 @@ station_flow %>%
   autofit()
 
 ```
+</div>
 
 Et voila! A nice tidy dataframe eagerly awaiting some plots and analysis. 
 
