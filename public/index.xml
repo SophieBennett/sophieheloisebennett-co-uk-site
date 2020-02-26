@@ -6,10 +6,23 @@
     <description>Recent content on Sophie Bennett</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 23 Feb 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 26 Feb 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>There Are People Trapped on the Underground</title>
+      <link>/posts/trapped-passengers/</link>
+      <pubDate>Wed, 26 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/posts/trapped-passengers/</guid>
+      <description>…Just kidding (I think!). But this dataset of average daily entries and exits at each Underground station certainly makes it look like there are.
+Exhibit 1: A plot showing the average daily entries made across all tube stations between 2007-2017.
+Exhibit 2: A plot of both average entries and exits made per day between 2007-2017:
+Whoops! Those poor commuters.
+TfL do provide an explanation for the discrepancy. In fact, they offer three:</description>
+    </item>
     
     <item>
       <title>Cleaning Dirty Excel Sheets in R</title>

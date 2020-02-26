@@ -1,0 +1,155 @@
+---
+title: "There Are People Trapped on the Underground"
+author: "Sophie Bennett"
+date: "26 Feb 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, echo=FALSE, message=FALSE)
+```
+
+```{r libs, include=FALSE}
+
+library(tidyverse)
+library(lubridate)
+library(scales)
+
+extrafont::loadfonts(device = "win")
+
+```
+
+```{r data, echo=FALSE}
+
+station_flow <- read_csv("../../resources/trapped-passengers/station-flow.csv") 
+
+```
+
+...Just kidding (I think!). But this dataset of average daily entries and exits at each Underground station certainly makes it look like there are.
+
+**Exhibit 1:** A plot showing the average daily entries made across all tube stations between 2007-2017.
+
+```{r, fig.align='center', echo=FALSE}
+
+station_flow %>% 
+  mutate(day = factor(day, levels = c("Weekday", "Saturday", "Sunday"))) %>% 
+  group_by(year, flow_type, day) %>% 
+  filter(flow_type == "Entry") %>% 
+  summarise(total_daily_entries = sum(total)) %>% 
+  ggplot(aes(as.character(year), total_daily_entries, group = day)) +
+  geom_line(aes(colour = day), size = 1.4, linetype = "longdash") +
+  labs(title = "Tube Passenger Flow 2007-2017",
+       x = "Year",
+       y = "Daily Entries",
+       colour = "") +
+  theme_minimal() +
+  scale_colour_manual(values = c("#FFCC00", "#006633", "#CC9999")) +
+  theme(legend.position = "bottom",
+        text = element_text(family = "Arial Nova"),
+        axis.text = element_text(size = 8),
+        axis.title.y = element_text(size = 9, hjust = 0.98, colour = "gray30"),
+        axis.title.x = element_text(size = 9, hjust = 0.97, colour = "gray30"),
+        legend.text = element_text(size = 9, colour = "gray30"),
+        plot.title = element_text(size = 12, face = "bold")) +
+  scale_y_continuous(labels = comma) 
+
+```
+
+**Exhibit 2:** A plot of both average entries *and* exits made per day between 2007-2017:
+
+```{r, fig.align='center', echo=FALSE}
+
+# just entries
+station_flow_entries <- station_flow %>% 
+  mutate(day = factor(day, levels = c("Weekday", "Saturday", "Sunday"))) %>% 
+  filter(flow_type == "Entry") %>% 
+  group_by(year, flow_type, day, flow_type) %>% 
+  summarise(total_daily_entries = sum(total))
+
+# just exits
+station_flow_exits <- station_flow %>% 
+  mutate(day = factor(day, levels = c("Weekday", "Saturday", "Sunday"))) %>% 
+  filter(flow_type == "Exit") %>% 
+  group_by(year, flow_type, day, flow_type) %>% 
+  summarise(total_daily_entries = sum(total))
+
+station_flow_entries %>%  
+  ggplot(aes(as.character(year), total_daily_entries, group = day)) +
+  geom_line(aes(colour = day, linetype = "longdash"), size = 1.4) +
+  geom_line(data = station_flow_exits, 
+            aes(as.character(year), total_daily_entries, group = day, 
+                                           colour = day, linetype = "dotdash"), 
+            size = 1.4) +
+  labs(title = "Tube Passenger Flow 2007-2017",
+       x = "Year",
+       y = "Daily Entries",
+       colour = "") +
+  theme_minimal() +
+  scale_colour_manual(values = c("#FFCC00", "#006633", "#CC9999")) +
+  scale_linetype_manual(values = c("dotdash" = "dotdash", "longdash" = "longdash"),
+                        labels = c("Exits", "Entries"),
+                        name = "") +
+  theme(legend.position = "bottom",
+        text = element_text(family = "Arial Nova"),
+        axis.text = element_text(size = 8),
+        axis.title.y = element_text(size = 9, hjust = 0.98, colour = "gray30"),
+        axis.title.x = element_text(size = 9, hjust = 0.97, colour = "gray30"),
+        legend.text = element_text(size = 9, colour = "gray30"),
+        plot.title = element_text(size = 12, face = "bold")) +
+  scale_y_continuous(labels = comma) +
+  guides(linetype = FALSE) +
+  annotate(geom = "text", x = c(11.35, 11.25), y = c(4700000, 4600000), 
+           label = c("Entries", "Exits"), size = 2.7, family = "Arial Nova", colour = "gray30")
+
+```
+
+Whoops! Those poor commuters. 
+
+TfL do provide an explanation for the discrepancy. In fact, they offer three:
+
+* Counts can take place on different days
+* Some counts include National Rail passengers 
+* There are some inaccuracies in the counts
+
+So it sounds like it might be partially something to do with the way the counts are sampled. Without knowing what the "inaccuracies" are, it's pretty hard to tell how much that's contributing to the difference here. 
+
+The point around National Rail seems a bit surprising; I'd assume that the number of people entering the tube via National Rail would roughly equal the number exiting via National Rail across the day... although it's possible some train commuters aren't bothering to touch out when they exit the tube.
+
+Looking at the entries and exit at each individual station paints a slightly more nuanced picture. For instance, here is the difference between number of entries and exits at each underground station in 2017:
+
+```{r, fig.align='center', echo=FALSE}
+
+station_flow %>% 
+  spread(flow_type, total) %>% 
+  mutate(flow_diff = Entry - Exit) %>% 
+  filter(year == "2017") %>% 
+  mutate(day = factor(day, levels = c("Weekday", "Saturday", "Sunday"), ordered = TRUE)) %>% 
+  ggplot() +
+  geom_col(aes(reorder(station, flow_diff), flow_diff, fill = day), alpha = 0.7, position = "dodge") +
+  facet_wrap(~day, nrow = 3) +
+  labs(x = "",
+       y = "Entries - Exits",
+       fill = "") +
+  theme_minimal() +
+  scale_fill_manual(values = c("#FFCC00", "#006633", "#CC9999")) +
+  theme(legend.position = "none",
+        text = element_text(family = "Arial Nova"),
+        axis.text = element_text(size = 8),
+        axis.title.y = element_text(size = 9, hjust = 0.98, colour = "gray30"),
+        axis.text.x = element_blank(),
+        legend.text = element_text(size = 9, colour = "gray30"))
+
+```
+
+I should point out that, although we'd expect the total entries and exits to be equal across the *entire* network, we wouldn't necessarily expect the entries and exits to be equal for each station. Nonetheless, it's interesting that the majority of stations have a slightly larger number of entries than exits. 
+
+At the end of the day, I'm still left wondering why the entry counts appear in general higher. Plausible explanations to me could be:
+
+* exit counts have been made on less busy days... but I can't see an easy explanation for why this would have occured
+* commuters with season tickets aren't bothering to touch out because they know they won't be charged
+* exit gates are sometimes being left open, though that would only be a plausible explanation at stations where entry and exit gates are in the same area
+
+
+But, I have to acknowledge that there could be many other plausible explanations! 
+
+The clearest way I can think of to get any further answers would be to look at entry and exit counts across different hours of the day across a large time period to get more of a sense of where passengers are being lost. If I ever get round to that I'll post an update, but until then let's give one final thought to the commuters trapped underground forever `r emo::ji("pray")`.
