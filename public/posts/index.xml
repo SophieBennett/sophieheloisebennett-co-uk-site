@@ -6,10 +6,20 @@
     <description>Recent content in Posts on Sophie Bennett</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 26 Feb 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 31 Mar 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Predicting School GCSE grades</title>
+      <link>/posts/predicting-gcses/</link>
+      <pubDate>Tue, 31 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/posts/predicting-gcses/</guid>
+      <description>Every year, the UK government releases a comprehensive dataset showing average GCSE grades at each school alongside demographic information about the schools. You can download the data yourself here.
+For obvious anonymity reasons, the government don’t provide the grades of individual students. Nonetheless, it’s a fascinating dataset that can be used to look at the relationship between different demographic variables and educational achievement, as well as to track changes in GCSE results overtime.</description>
+    </item>
     
     <item>
       <title>There Are People Trapped on the Underground</title>
