@@ -105,7 +105,7 @@ Special schools have much lower attainment 8 scores, and the data is positively 
 
 The plots below show how attainment 8 varies depending on each of our other demographic variables.
 
-```{r correlations, fig.align = "center", out.width = "120%", echo = FALSE}
+```{r correlations, fig.align = "center", echo = FALSE}
 
 gcses %>% 
   filter(school_type != "Special School") %>% 
@@ -216,17 +216,15 @@ sjPlot::tab_model(model)
 
 And here are the diagnostic plots:
 
-```{r regression plots, out.width = "60%", fig.align = "center", echo = FALSE}
+```{r regression plots, echo = FALSE, out.width = "60%", fig.align = "center"}
 
-qq_plot <- ols_plot_resid_qq(model)
+ols_plot_resid_qq(model)
 
-resid_plot <- ols_plot_resid_fit(model)
+ols_plot_resid_fit(model)
 
-dev_plot <- ols_plot_obs_fit(model)
+ols_plot_obs_fit(model)
 
-hist_plot <- ols_plot_resid_hist(model)
-
-gridExtra::grid.arrange(qq_plot, resid_plot, dev_plot, hist_plot, nrow = 2)
+ols_plot_resid_hist(model)
 
 ```
 
