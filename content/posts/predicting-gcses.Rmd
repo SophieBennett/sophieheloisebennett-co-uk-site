@@ -105,81 +105,96 @@ Special schools have much lower attainment 8 scores, and the data is positively 
 
 The plots below show how attainment 8 varies depending on each of our other demographic variables.
 
-```{r correlations, fig.align = "center", echo = FALSE}
+```{r correlations, fig.align = "center", out.width = "110%", echo = FALSE}
 
-gcses %>% 
+p1 <- gcses %>% 
   filter(school_type != "Special School") %>% 
   ggplot() +
-  geom_boxplot(aes(gender, att8, fill = gender), alpha = 0.8) +
+  geom_boxplot(aes(gender, att8, fill = gender), alpha = 0.6) +
   facet_wrap(~school_type) +
   labs(x = "",
        y = "Att 8 Score",
        fill = "") +
   theme_minimal() +
   theme(text = element_text(family = "Arial Nova"),
-        legend.position = "bottom") +
-  scale_fill_manual(values = c("#6BC499", "#308CA8", "#D35254"))
+        legend.position = "none",
+        axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8)) +
+  scale_fill_manual(values = c("#F1EBB9", "#D35254", "#27213C"))
 
-gcses %>% 
+p2 <- gcses %>% 
   filter(school_type != "Special School") %>% 
   ggplot() + 
-  geom_point(aes(num_pupils, att8, colour = school_type), alpha = 0.4) +
+  geom_point(aes(num_pupils, att8, colour = school_type), size = 1, alpha = 0.2) +
   labs(x = "Number of Pupils",
        y = "Att 8 Score",
        colour = "School Type") +
   theme_minimal() +
   theme(text = element_text(family = "Arial Nova"),
-        legend.position = "bottom") +
+        legend.position = "none",
+        axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8)) +
   scale_colour_manual(values = c("#EF6351", "#A2CD5D"))
 
-gcses %>% 
+p3 <- gcses %>% 
   filter(school_type != "Special School") %>% 
   ggplot() +
-  geom_point(aes(att8_17, att8, colour = school_type), alpha = 0.5) +
+  geom_point(aes(att8_17, att8, colour = school_type), size = 1, alpha = 0.2) +
   labs(x = "2017-2018 Attainment 8",
        y = "2018-2019 Attainment 8",
        colour = "School Type") +
   theme_minimal() +
   theme(text = element_text(family = "Arial Nova"),
-        legend.position = "bottom") +
+        legend.position = "none",
+        axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8)) +
   scale_colour_manual(values = c("#EF6351", "#A2CD5D"))
 
 
-gcses %>% 
+p4 <- gcses %>% 
   filter(school_type != "Special School") %>% 
   ggplot() +
-  geom_point(aes(perc_fsm, att8, colour = school_type), alpha = 0.4, size = 1.5) +
+  geom_point(aes(perc_fsm, att8, colour = school_type), size = 1, alpha = 0.2, size = 1.5) +
   labs(x = "% FSM",
        y = "Att 8 Score",
        colour = "School Type") +
   theme_minimal() +
-  theme(text = element_text(family = "Arial Nova")) +
+  theme(text = element_text(family = "Arial Nova"),
+        legend.position = "none",
+        axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8)) +
   scale_colour_manual(values = c("#EF6351", "#A2CD5D"))
 
-gcses %>% 
+p5 <- gcses %>% 
   filter(school_type != "Special School") %>% 
   ggplot() +
-  geom_point(aes(perc_sec_lang, att8, colour = school_type), alpha = 0.4) +
+  geom_point(aes(perc_sec_lang, att8, colour = school_type), size = 1, alpha = 0.2) +
   labs(x = "% EAL",
        y = "Att 8 Score",
        colour = "School Type") +
   theme_minimal() +
   theme(text = element_text(family = "Arial Nova"),
-        legend.position = "bottom") +
+        legend.position = "none",
+        axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8)) +
   scale_colour_manual(values = c("#EF6351", "#A2CD5D"))
 
-gcses %>% 
+p6 <- gcses %>% 
   filter(school_type != "Special School") %>%
   filter(perc_sen != 100) %>% 
   ggplot() + 
-  geom_point(aes(perc_sen, att8, colour = school_type), alpha = 0.4) +
+  geom_point(aes(perc_sen, att8, colour = school_type), size = 1, alpha = 0.2) +
   labs(x = "% SEN",
        y = "Att 8 Score",
-       colour = "School Type") +
+       colour = "") +
   theme_minimal() +
   theme(text = element_text(family = "Arial Nova"),
-        legend.position = "bottom") +
+        legend.position = "bottom",
+        axis.title = element_text(size = 9),
+        axis.text = element_text(size = 8)) +
   scale_colour_manual(values = c("#EF6351", "#A2CD5D"))
+
+gridExtra::grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 3)
 
 ```
 
