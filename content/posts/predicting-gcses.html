@@ -9,6 +9,12 @@ output: html_document
 <script src="/rmarkdown-libs/tabwid/tabwid.js"></script>
 
 
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
 <p>Every year, the UK government releases a comprehensive dataset showing average GCSE grades at each school alongside demographic information about the schools. You can download the data yourself <a href="https://www.compare-school-performance.service.gov.uk/download-data">here.</a></p>
 <p>For obvious anonymity reasons, the government don’t provide the grades of individual students. Nonetheless, it’s a fascinating dataset that can be used to look at the relationship between different demographic variables and educational achievement, as well as to track changes in GCSE results overtime.</p>
 <p>When the 2018-19 GCSE data became available in a couple of months ago, I’d been planning to take a look at the data primarily to explore how things like school size, school type and economic background of the students affect GCSE grades.</p>
@@ -61,163 +67,75 @@ output: html_document
 <div id="regression-modelling" class="section level1">
 <h1>Regression Modelling</h1>
 <p>To model the effects of each variable on attainment 8, I’ve opted to use multiple linear regression. (I did also play around with quantile regression on this dataset, which I may blog about in a separate post…). It’s probably not the technique that yields the best prediction accuracy, but I want an interpretable model. I think opting for something interpretable is more realistic too - the goal of predicting student grades to replace actual exam grades is so high stakes that I suspect if the government were to do this, they’d want a model they could understand!</p>
-<p>The plots above indicate that many of the variables I’m adding into the model have a substantially larger effect on state schools than grammar schools. I could model this with an interaction term, but since the total number of grammar schools is small I’ve instead opted to focus just on state schools.</p>
-<p>This is the model summary:</p>
-<table style="border-collapse:collapse; border:none;">
-<tr>
-<th style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm;  text-align:left; ">
- 
-</th>
-<th colspan="3" style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm; ">
-att 8
-</th>
-</tr>
-<tr>
-<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  text-align:left; ">
-Predictors
-</td>
-<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  ">
-Estimates
-</td>
-<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  ">
-CI
-</td>
-<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  ">
-p
-</td>
-</tr>
-<tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">
-(Intercept)
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-8.78
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-7.65 – 9.91
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-<strong>&lt;0.001
-</td>
-</tr>
-<tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">
-att8_17
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-0.85
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-0.83 – 0.87
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-<strong>&lt;0.001
-</td>
-</tr>
-<tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">
-perc_fsm
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
--0.05
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
--0.06 – -0.04
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-<strong>&lt;0.001
-</td>
-</tr>
-<tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">
-gender.L
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-0.61
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-0.26 – 0.95
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-<strong>0.001</strong>
-</td>
-</tr>
-<tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">
-gender.Q
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-0.63
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-0.13 – 1.12
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-<strong>0.013</strong>
-</td>
-</tr>
-<tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">
-perc_sec_lang
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-0.02
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-0.02 – 0.03
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-<strong>&lt;0.001
-</td>
-</tr>
-<tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">
-perc_sen
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
--0.03
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
--0.05 – -0.02
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
-<strong>&lt;0.001
-</td>
-</tr>
-<tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm; border-top:1px solid;">
-Observations
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;" colspan="3">
-2787
-</td>
-</tr>
-<tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
-R<sup>2</sup> / R<sup>2</sup> adjusted
-</td>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3">
-0.838 / 0.837
-</td>
-</tr>
-</table>
+<p>The scatterplots I made above indicate that many of the variables I’m adding into the model have a substantially larger effect on state schools than grammar schools. I could model this with an interaction term, but since the total number of grammar schools is small I’ve instead opted to focus just on state schools.</p>
+<p>Since this is a prediction task, I’m dividing the data into a training set to develop the model, and a test set for model validation:</p>
+<div class="highlight">
+<pre class="r"><code>gcses_state &lt;- gcses %&gt;% 
+  filter(school_type == &quot;State School&quot;) %&gt;% 
+  drop_na()
+
+set.seed(2115)
+
+trainIndex &lt;- createDataPartition(gcses_state$att8, p = .7, list = FALSE) 
+  # note that I&#39;m using simple bootstrap resampling for cross-validation here
+
+training &lt;- gcses_state[ trainIndex,]
+
+test &lt;- gcses_state[-trainIndex,]</code></pre>
+</div>
+<p>This is the model summary on the training set:</p>
+<pre><code>## 
+## Call:
+## lm(formula = .outcome ~ ., data = dat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -10.2813  -1.7143   0.0114   1.7282   9.4128 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)    8.935024   0.915347   9.761  &lt; 2e-16 ***
+## num_pupils     0.001810   0.001136   1.593    0.111    
+## gender.L       0.580211   0.729271   0.796    0.426    
+## gender.Q      -0.225459   1.188180  -0.190    0.850    
+## perc_fsm      -0.054138   0.006446  -8.399  &lt; 2e-16 ***
+## perc_sen      -0.037096   0.009272  -4.001 6.58e-05 ***
+## perc_sec_lang  0.025151   0.003953   6.363 2.51e-10 ***
+## att8_17        0.845641   0.013043  64.837  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.716 on 1761 degrees of freedom
+## Multiple R-squared:  0.826,  Adjusted R-squared:  0.8253 
+## F-statistic:  1194 on 7 and 1761 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p>And here are the diagnostic plots:</p>
-<p><img src="/posts/predicting-gcses_files/figure-html/regression%20plots-1.png" width="60%" style="display: block; margin: auto;" /><img src="/posts/predicting-gcses_files/figure-html/regression%20plots-2.png" width="60%" style="display: block; margin: auto;" /><img src="/posts/predicting-gcses_files/figure-html/regression%20plots-3.png" width="60%" style="display: block; margin: auto;" /><img src="/posts/predicting-gcses_files/figure-html/regression%20plots-4.png" width="60%" style="display: block; margin: auto;" /></p>
+<p><img src="/posts/predicting-gcses_files/figure-html/display%20regression%20plots-1.png" width="90%" style="display: block; margin: auto;" /></p>
 <p>So what can we tell from this? Well, for a start, <em>all</em> of our variables are significant predictors. As it stands, the model accounts for ~ 84% of the variance in school attainment 8 scores. This is pretty good, although far from perfect. The school’s prior grades appear to be one of the strongest predictors of the 2018-2019 grades. (It may be an even stronger predictor had I included data from years before 2017-2018 too). The gender distribution in the school is also an important predictor, with all-girls schools achieving significantly better grades than mixed and all-boys schools.</p>
 <p>The diagnostics are also interesting: the assumptions of linearity and normality hold up pretty well, although there is some deviance in residuals in the bottom quantile. The plot of actual versus fitted values is also enlightening - from this we can see that the model does least well at predicting the values for schools with <em>lower</em> attainment 8 scores, and tends to underestimate values for these schools.</p>
+<p>Now, this is how the model performs on the training data, but what about the test data?</p>
+<div class="highlight">
+<pre class="r"><code>predict &lt;- predict(gcse_fit, test)
+
+postResample(pred = predict, obs = test$att8)</code></pre>
+<pre><code>##      RMSE  Rsquared       MAE 
+## 2.6736813 0.8310062 2.0984710</code></pre>
+</div>
+<p>Reassuringly, the root mean square error and adjusted R<sup>2</sup> look very comparable to those obtained with the training data. The plot of actual versus predicted values also looks pretty good:</p>
+<p><img src="/posts/predicting-gcses_files/figure-html/test%20plots-1.png" width="672" /></p>
 <hr />
 <div id="conclusions" class="section level2">
 <h2>Conclusions</h2>
 <p>The model fit achieved even with this simple model suggests that student grades could be predicted reasonably well from existing data. I suspect that with access to individual level data, the government could achieve an even better fit.</p>
-<p>That being said, there are still some big problems:</p>
+<p>That being said, there are still some problems:</p>
 <ul>
 <li>Since students won’t be taking exams this year, we’d never know how accurate the predictions really were</li>
-<li>The model wouldn’t be accurate for all students.</li>
+<li>There’s no obvious way to predict or moderate grades of private candidates</li>
+<li>Even if the model has reasonably high accuracy, the model wouldn’t be accurate for all students</li>
 </ul>
-<p>The biggest issue with inaccuracy lies in the fact that the model becomes <em>less</em> accurate for schools with lower attainment 8 scores, which are often the schools with the most economically disadvantaged students. Since the model underestimates grades in these schools, it looks like students at these schools might be the most disadvanted by a solution that relied on prediction based on prior data. This is likely to be compounded by the fact that these schools tend to display more variability in grades both within and across cohorts. Hoepfully this is something that Ofqual will take into consideration.</p>
-<p>Nonetheless, given that Ofqual <em>are</em> likely to use a school’s prior grades to moderate student grades this year, it’s interesting to see that it can be a pretty strong predictor of grades (at least at the aggregate level). I’d be keen to find out how they’re planning to use this information.</p>
-<p>Fundamentally, there’s no perfect solution to this problem. I think using both school and individual student data alongside teacher predictions is a sensible solution, even if some students are likely to be unhappy. (In light of this, it’s great that students will be given the option to take an exam later in the year if they’re not happy with their assigned grade).</p>
-<p>Without getting all students to take an exam later next year, we’ll never find out how accurate the process that Ofqual settles on really ends up being… I suspect that even if Ofqual were able to assign grades that perfectly predicted those he grades students <em>would have obtained</em> in their GCSE exam, we’d still see unhappy students, teachers and parents.</p>
+<p>The biggest issue with inaccuracy lies in the fact that the model becomes <em>less</em> accurate for schools with lower attainment 8 scores, which are often the schools with the most economically disadvantaged students. Since the model underestimates grades in these schools, it looks like students at these schools might be the most disadvanted by a solution that relied on prediction based on prior data. This is likely to be compounded by the fact that these schools tend to display more variability in grades both within and across cohorts. Hopefully this is something that Ofqual will take into consideration.</p>
+<p>Nonetheless, given that Ofqual <em>are</em> likely to use a school’s prior grades to moderate student grades this year, it’s interesting to see that it <em>can</em> be a pretty strong predictor of grades (at least at the aggregate level). I’d be keen to find out how they’re planning to use this information. (<strong>Update</strong>: The most recent statement suggests that prior school performance is likely to play an <a href="https://www.gov.uk/government/news/how-gcses-as-a-levels-will-be-awarded-in-summer-2020">important part in moderating teacher judgements!</a>)</p>
+<p>Fundamentally, there’s no perfect solution to this problem. I think using both school and individual student data alongside teacher predictions is a sensible solution, even if some students are likely to be unhappy. (In light of this, it’s great that students will be given the option to take an exam later in the year if they’re not happy with their assigned grade). It also seems to me to be more reliable and fair than relying purely on teacher predictions.</p>
+<p>Without getting all students to take an exam later next year, we’ll also never find out how accurate the process that Ofqual settles on really ends up being… though I suspect that even if Ofqual were able to assign grades that perfectly predicted the grades students <em>would have obtained</em> in their GCSE exam, we’d still see some unhappy students, teachers and parents.</p>
 <p>Finally, it’s worth pointing out that assessing a student’s ability is an incredibly difficult task, and end of year exams aren’t a perfect predictor of a student’s abilities in the first place.</p>
 </div>
 </div>

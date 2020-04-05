@@ -5,6 +5,13 @@ date: "31 Mar 2020"
 output: html_document
 ---
 
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, error = FALSE)
 
@@ -14,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, error = FAL
 
 library(tidyverse)
 library(olsrr)
-library(rvest)
+library(caret)
 library(flextable)
 extrafont::loadfonts(device = "win")
 
@@ -213,57 +220,115 @@ Finally, there's a clear effect of gender, whereby mixed schools tend to do less
 
 To model the effects of each variable on attainment 8, I've opted to use multiple linear regression. (I did also play around with quantile regression on this dataset, which I may blog about in a separate post...). It's probably not the technique that yields the best prediction accuracy, but I want an interpretable model. I think opting for something  interpretable is more realistic too - the goal of predicting student grades to replace actual exam grades is so high stakes that I suspect if the government were to do this, they'd want a model they could understand!
 
-The plots above indicate that many of the variables I'm adding into the model have a substantially larger effect on state schools than grammar schools. I could model this with an interaction term, but since the total number of grammar schools is small I've instead opted to focus just on state schools.
+The scatterplots I made above indicate that many of the variables I'm adding into the model have a substantially larger effect on state schools than grammar schools. I could model this with an interaction term, but since the total number of grammar schools is small I've instead opted to focus just on state schools.
 
-This is the model summary:
+Since this is a prediction task, I'm dividing the data into a training set to develop the model, and a test set for model validation:
+
+<div class="highlight">
+```{r model preparation, include = TRUE}
+
+gcses_state <- gcses %>% 
+  filter(school_type == "State School") %>% 
+  drop_na()
+
+set.seed(2115)
+
+trainIndex <- createDataPartition(gcses_state$att8, p = .7, list = FALSE) 
+  # note that I'm using simple bootstrap resampling for cross-validation here
+
+training <- gcses_state[ trainIndex,]
+
+test <- gcses_state[-trainIndex,]
+
+```
+</div>
+
+This is the model summary on the training set:
 
 ```{r regression, echo = FALSE}
 
-gcses_state <- gcses %>% 
-  filter(school_type == "State School")
+gcse_fit <- train(att8 ~ num_pupils + gender + perc_fsm + perc_sen + perc_sec_lang + att8_17,
+                  data = training, 
+                  method = "lm")
 
-model <- lm(att8 ~ att8_17 + perc_fsm + gender + perc_sec_lang + perc_sen, data = gcses_state)
-
-sjPlot::tab_model(model)
+summary(gcse_fit)
 
 ```
 
-
 And here are the diagnostic plots:
 
-```{r regression plots, echo = FALSE, out.width = "60%", fig.align = "center"}
+```{r make regression plots, include = FALSE}
 
-ols_plot_resid_qq(model)
+fit <- lm(att8 ~ num_pupils + gender + perc_fsm + perc_sen + perc_sec_lang + att8_17,
+                  data = training)
 
-ols_plot_resid_fit(model)
+dp1 <- ols_plot_resid_qq(fit)
 
-ols_plot_obs_fit(model)
+dp2 <- ols_plot_resid_fit(fit)
 
-ols_plot_resid_hist(model)
+dp3 <- ols_plot_obs_fit(fit)
+
+dp4 <- ols_plot_resid_hist(fit)
+
+```
+
+```{r display regression plots, echo = FALSE, out.width = "90%", fig.align = "center"}
+
+gridExtra::grid.arrange(dp1, dp2, dp3, dp4, nrow = 2)
 
 ```
 
 So what can we tell from this? Well, for a start, *all* of our variables are significant predictors. As it stands, the model accounts for ~ 84% of the variance in school attainment 8 scores. This is pretty good, although far from perfect. The school's prior grades appear to be one of the strongest predictors of the 2018-2019 grades. (It may be an even stronger predictor had I included data from years before 2017-2018 too). The gender distribution in the school is also an important predictor, with all-girls schools achieving significantly better grades than mixed and all-boys schools.
 
-
 The diagnostics are also interesting: the assumptions of linearity and normality hold up pretty well, although there is some deviance in residuals in the bottom quantile. The plot of actual versus fitted values is also enlightening - from this we can see that the model does least well at predicting the values for schools with *lower* attainment 8 scores, and tends to underestimate values for these schools.
+
+Now, this is how the model performs on the training data, but what about the test data?
+
+<div class="highlight">
+```{r test data, include = TRUE}
+
+predict <- predict(gcse_fit, test)
+
+postResample(pred = predict, obs = test$att8)
+
+```
+</div>
+
+Reassuringly, the root mean square error and adjusted R^2^ look very comparable to those obtained with the training data. The plot of actual versus predicted values also looks pretty good:
+
+```{r test plots, echo = FALSE}
+
+predicted_vals <- tibble(predicted = predict, observed = test$att8)
+
+predicted_vals %>% 
+  ggplot(aes(observed, predicted)) +
+  geom_point(colour = "#A2CD5D", alpha = 0.8) +
+  labs(x = "Observed values", 
+       y = "Predicted values") +
+  theme_minimal() +
+  theme(text = element_text(family = "Arial Nova"),
+        panel.grid.minor = element_blank())
+  
+
+```
 
 ***
 ## Conclusions
 
 The model fit achieved even with this simple model suggests that student grades could be predicted reasonably well from existing data. I suspect that with access to individual level data, the government could achieve an even better fit. 
 
-That being said, there are still some big problems:
+That being said, there are still some problems:
 
 * Since students won't be taking exams this year, we'd never know how accurate the predictions really were
-* The model wouldn't be accurate for all students. 
+* There's no obvious way to predict or moderate grades of private candidates
+* Even if the model has reasonably high accuracy, the model wouldn't be accurate for all students 
 
-The biggest issue with inaccuracy lies in the fact that the model becomes *less* accurate for schools with lower attainment 8 scores, which are often the schools with the most economically disadvantaged students. Since the model underestimates grades in these schools, it looks like students at these schools might be the most disadvanted by a solution that relied on prediction based on prior data. This is likely to be compounded by the fact that these schools tend to display more variability in grades both within and across cohorts. Hoepfully this is something that Ofqual will take into consideration.
+The biggest issue with inaccuracy lies in the fact that the model becomes *less* accurate for schools with lower attainment 8 scores, which are often the schools with the most economically disadvantaged students. Since the model underestimates grades in these schools, it looks like students at these schools might be the most disadvanted by a solution that relied on prediction based on prior data. This is likely to be compounded by the fact that these schools tend to display more variability in grades both within and across cohorts. Hopefully this is something that Ofqual will take into consideration.
 
-Nonetheless, given that Ofqual *are* likely to use a school's prior grades to moderate student grades this year, it's interesting to see that it can be a pretty strong predictor of grades (at least at the aggregate level). I'd be keen to find out how they're planning to use this information.
+Nonetheless, given that Ofqual *are* likely to use a school's prior grades to moderate student grades this year, it's interesting to see that it *can* be a pretty strong predictor of grades (at least at the aggregate level). I'd be keen to find out how they're planning to use this information. (**Update**: The most recent statement suggests that prior school performance is likely to play an [important part in moderating teacher judgements!](https://www.gov.uk/government/news/how-gcses-as-a-levels-will-be-awarded-in-summer-2020))
 
-Fundamentally, there's no perfect solution to this problem. I think using both school and individual student data alongside teacher predictions is a sensible solution, even if some students are likely to be unhappy. (In light of this, it's great that students will be given the option to take an exam later in the year if they're not happy with their assigned grade).
+Fundamentally, there's no perfect solution to this problem. I think using both school and individual student data alongside teacher predictions is a sensible solution, even if some students are likely to be unhappy. (In light of this, it's great that students will be given the option to take an exam later in the year if they're not happy with their assigned grade). It also seems to me to be more reliable and fair than relying purely on teacher predictions.
 
-Without getting all students to take an exam later next year, we'll never find out how accurate the process that Ofqual settles on really ends up being... I suspect that even if Ofqual were able to assign grades that perfectly predicted those he grades students *would have obtained* in their GCSE exam, we'd still see unhappy students, teachers and parents. 
+Without getting all students to take an exam later next year, we'll also never find out how accurate the process that Ofqual settles on really ends up being... though I suspect that even if Ofqual were able to assign grades that perfectly predicted the grades students *would have obtained* in their GCSE exam, we'd still see some unhappy students, teachers and parents. 
 
 Finally, it's worth pointing out that assessing a student's ability is an incredibly difficult task, and end of year exams aren't a perfect predictor of a student's abilities in the first place. 

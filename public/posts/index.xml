@@ -17,7 +17,7 @@
       <pubDate>Tue, 31 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/posts/predicting-gcses/</guid>
-      <description>Every year, the UK government releases a comprehensive dataset showing average GCSE grades at each school alongside demographic information about the schools. You can download the data yourself here.
+      <description>pre.r { color:#000;background-color:#ECECEC;}Every year, the UK government releases a comprehensive dataset showing average GCSE grades at each school alongside demographic information about the schools. You can download the data yourself here.
 For obvious anonymity reasons, the government don’t provide the grades of individual students. Nonetheless, it’s a fascinating dataset that can be used to look at the relationship between different demographic variables and educational achievement, as well as to track changes in GCSE results overtime.</description>
     </item>
     
