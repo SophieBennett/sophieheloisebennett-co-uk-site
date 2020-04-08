@@ -105,7 +105,7 @@ We can see that for state schools, the data is roughly normally distributed, wit
 
 Unsurprisingly, grammar schools generally have higher attainment 8 scores than state schools. There's a funny bimodal peak to the distribution - which I would interpret cautiously given that there are only 163 grammar schools (compared with ~3000 state schools).
 
-Special schools have much lower attainment 8 scores, and the data is positively skewed. It's worth noting that students in special schools may not always do the same qualifications which is likely to make the scores hard to interpret. As a result, I'll be exlcuding special schools from further analysis.
+Special schools have much lower attainment 8 scores, and the data is positively skewed. It's worth noting that students in special schools may not always do the same qualifications which is likely to make the scores hard to interpret. As a result, I'll be excluding special schools from further analysis.
 
 ***
 ## Relationship with Demographic Variables
@@ -278,7 +278,7 @@ gridExtra::grid.arrange(dp1, dp2, dp3, dp4, nrow = 2)
 
 ```
 
-So what can we tell from this? Well, for a start, *all* of our variables are significant predictors. As it stands, the model accounts for ~ 84% of the variance in school attainment 8 scores. This is pretty good, although far from perfect. The school's prior grades appear to be one of the strongest predictors of the 2018-2019 grades. (It may be an even stronger predictor had I included data from years before 2017-2018 too). The gender distribution in the school is also an important predictor, with all-girls schools achieving significantly better grades than mixed and all-boys schools.
+So what can we tell from this? Well, for a start, *all* of our variables are significant predictors. As it stands, the model accounts for ~ 84% of the variance in school attainment 8 scores. This is pretty good, although far from perfect. The school's prior grades appear to be one of the strongest predictors of the 2018-2019 grades. (And it might be an even stronger predictor had I included data from years prior to 2017-2018 as well). The gender distribution in the school is also an important predictor, with all-girls schools achieving significantly better grades than mixed and all-boys schools.
 
 The diagnostics are also interesting: the assumptions of linearity and normality hold up pretty well, although there is some deviance in residuals in the bottom quantile. The plot of actual versus fitted values is also enlightening - from this we can see that the model does least well at predicting the values for schools with *lower* attainment 8 scores, and tends to underestimate values for these schools.
 
@@ -323,7 +323,7 @@ That being said, there are still some problems:
 * There's no obvious way to predict or moderate grades of private candidates
 * Even if the model has reasonably high accuracy, the model wouldn't be accurate for all students 
 
-The biggest issue with inaccuracy lies in the fact that the model becomes *less* accurate for schools with lower attainment 8 scores, which are often the schools with the most economically disadvantaged students. Since the model underestimates grades in these schools, it looks like students at these schools might be the most disadvanted by a solution that relied on prediction based on prior data. This is likely to be compounded by the fact that these schools tend to display more variability in grades both within and across cohorts. Hopefully this is something that Ofqual will take into consideration.
+The biggest issue with inaccuracy lies in the fact that the model becomes *less* accurate for schools with lower attainment 8 scores, which are often the schools with the most economically disadvantaged students. Since the model underestimates grades in these schools, it looks like students at these schools might be the most disadvantaged by a solution that relied on prediction based on prior data. This is likely to be compounded by the fact that these schools tend to display more variability in grades both within and across cohorts. Hopefully this is something that Ofqual will take into consideration.
 
 Nonetheless, given that Ofqual *are* likely to use a school's prior grades to moderate student grades this year, it's interesting to see that it *can* be a pretty strong predictor of grades (at least at the aggregate level). I'd be keen to find out how they're planning to use this information. (**Update**: The most recent statement suggests that prior school performance is likely to play an [important part in moderating teacher judgements!](https://www.gov.uk/government/news/how-gcses-as-a-levels-will-be-awarded-in-summer-2020))
 
