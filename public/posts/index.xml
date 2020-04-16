@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Sophie Bennett</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 31 Mar 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 16 Apr 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Is Your Box of Celebrations Chocolates Biased?</title>
+      <link>/posts/binomials-with-celebrations/</link>
+      <pubDate>Thu, 16 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/posts/binomials-with-celebrations/</guid>
+      <description>pre.r { color:#000;background-color:#ECECEC;}We surely all know the feeling of disappointment when the best chocolates in the Celebrations box are all gone and there’s only the rubbish ones left in the tub. Myself being particularly fond of the Malterers and Galaxy chocolates, I’ve often felt a little suspicious that there might not be as many of them in a box than the other chocolates. But, I’ve never had a chance to put my suspicions to the test…</description>
+    </item>
     
     <item>
       <title>Predicting School GCSE grades</title>

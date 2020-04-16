@@ -1,0 +1,74 @@
+---
+title: "Is Your Box of Celebrations Chocolates Biased?"
+author: "Sophie Bennett"
+date: "16 Apr 2020"
+output: html_document
+---
+
+
+
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
+<p>We surely all know the feeling of disappointment when the best chocolates in the Celebrations box are all gone and there’s only the rubbish ones left in the tub. Myself being particularly fond of the Malterers and Galaxy chocolates, I’ve often felt a little suspicious that there might not be as many of them in a box than the other chocolates. But, I’ve never had a chance to put my suspicions to the test…</p>
+<p>This all changed a couple of days ago, as we came into the possession of a 2.4 kg box of celebrations(!). So, for fun, my partner and I decided to count up the number of each type of chocolate in the box. (You might take this as a sign of social distancing-induced boredom, but no, this kind of behaviour is pretty much the norm for us).</p>
+<p>And with that, we finally had the data we’d been longing for:</p>
+<p><img src="/posts/binomials-with-celebrations_files/figure-html/chocolate%20plot-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>There were 267 chocolates in total in the box, and 8 types of chocolate. If there were <em>equal</em> numbers of each type of chocolate, that would mean 33.375 chocolates of each type - or, to be more realistic, somewhere between 32-34 of each type.</p>
+<p>But in our box, there were a whopping 52 Mars Bars, and 44 Milky Ways… and only around 20 Galaxy and Galaxy Caramels. Unfortunate, since neither of us like Mars Bars or Milky Way all that much.</p>
+<p>Now, the distribution of chocolates within our box got me ever more suspicious. Could Mars Inc be overfilling Celebrations with certain types of chocolate at the expense of others?</p>
+<p>Nothing that a good bit of statistics and probability can’t help us answer!</p>
+<div id="stats-time" class="section level2">
+<h2>Stats Time!</h2>
+<p>Let’s first suppose that the company <em>aren’t</em> hand-picking every single chocolate to ensure the same number of chocolate types in each day.</p>
+<p>Instead, let’s suppose the company produce equal amounts of each type of chocolate, and a random selection goes into each box.</p>
+<p>In this scenario, even if usually, the number of each type of chocolate should turn out roughly equal, we’d expect there to sometimes be boxes with a surprisingly larger number of some types of chocolates over others.</p>
+<p>But how likely would we be to see the distribution of chocolate types as unequal as what we observed in our own Celebrations box?</p>
+<p>Since our data consists of counts of categorical data, we can answer this question with a chi-squared test comparing our observed frequency to the expected average frequency (i.e. equal numbers of each type of chocolate).</p>
+<div class="highlight">
+<pre class="r"><code>chisq.test(table, p = rep(0.125, 8))</code></pre>
+<pre><code>## 
+##  Chi-squared test for given probabilities
+## 
+## data:  table
+## X-squared = 27.142, df = 7, p-value = 0.0003142</code></pre>
+</div>
+<p>With a p-value of 0.0003, our observed frequency is looking pretty unlikely, if the chocolates really are selected randomly from an equal number of each chocolate type.</p>
+<p>Next, focussing <em>just</em> on the Mars Bars - since they’re the most frequent (and most suspicious) chocolate in our box by far… if the chocolate selection is made at random, from a pool of chocolate types of equal number, what’s the probability of ending up with 52 Mars Bars in a box of 267?</p>
+<p>Here, we have a binary outcome: Mars, or not Mars. This therefore becomes a classic binomial problem. If each type of chocolate is equally likely to be selected, the probability <em>p</em> of picking a Mars Bar is 1/8, or <em>p</em> = 0.125. The probability of picking something other than a Mars Bar is 1 - <em>p</em> = 0.875.</p>
+<p>Then we can calculate the probability of picking 52 Mars Bars out of 267 using this formula:</p>
+<p>P(x) = N! / k!(N-k)! . <em>p</em><sup>k</sup>(1-<em>p</em>)<sup>N</sup> <sup>-</sup> <sup>k</sup></p>
+<p>where N is the total number and k is the number of successful outcomes (in this case, the number of Mars Bars).</p>
+<p>Although we can calculate this by hand, r provides a handy function, dbinom() to calculate binomial probabilities.</p>
+<div class="highlight">
+<pre class="r"><code>dbinom(52, size = 267, prob = 0.125)</code></pre>
+<pre><code>## [1] 0.0003406686</code></pre>
+</div>
+<p>So, the probability of obtaining 52 Mars Bars in a box of 257 Celebrations, if all types of chocolate are equally likely to be picked, is 0.0003.</p>
+<p>To make even clearer how unlikely this is, here’s where our outcome sits on a probability distribution:</p>
+<p><img src="/posts/binomials-with-celebrations_files/figure-html/binomial%20plot-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="data-time" class="section level2">
+<h2>Data Time!</h2>
+<p>At this point, it’s looking more and more like the selection of chocolates in the box is biased.</p>
+<p>However, I <em>am</em> making my inferring on the basis of just a single sample. To be more certain, I’d need to do this with more Celebrations boxed… but with 2.4 kg of chocolate, it doesn’t look like we’ll be buying more anytime soon/</p>
+<p>In the absence of more samples, I decided to collect anecdotal evidence from google. My google search revealed to me that other people have had similar experiences to ours:</p>
+<p>First, I found some stellar reporting from the Liverpool Echo <a href="https://www.liverpoolecho.co.uk/whats-on/food-drink-news/analysed-contents-celebrations-tub-what-14064752">here</a>, confirming an abundance of Mars Bars in their sample.</p>
+<p>Then, I found this <a href="https://moreknownthanproven.wordpress.com/2016/01/09/how-many-sweets-in-a-celebrations-tub/">hero</a> who <em>also</em> counted up the number of chocolates in his Celebrations box, and even got 13 more people involved! And what would you know, Mars Bars were again the clear winner.</p>
+<p>But why is this going on? Why are our Celebrations boxes overfilled with Mars Bars?</p>
+<p>Now, a simple answer could be that Mars Bars are in fact the most popular chocolate type, and the company are merely this catering to the tastes of the nation.</p>
+<p>It turns out, YouGov have conducted a [poll on this subject].(<a href="https://yougov.co.uk/topics/politics/articles-reports/2017/12/13/ranked-best-christmas-chocolates" class="uri">https://yougov.co.uk/topics/politics/articles-reports/2017/12/13/ranked-best-christmas-chocolates</a>)</p>
+<p>The results possibly <em>won’t</em> shock you:</p>
+<p><img src="/posts/binomials-with-celebrations_files/figure-html/favourite%20chocs%20plot-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Malteasers are the nation’s favourite, across all age groups - and also my personal favourites, so I’m clearly basic af.</p>
+<p>Mars on the otherhand, is the nation’s <em>least</em> favourite…</p>
+<p>Clearly this isn’t a case of the company catering to the nation’s tastes… so what else could explain this? Is it an attempt to change public opinion? Are Mars Bars cheaper to produce? Or is it all designed to encourage us to buy <em>more</em> boxes, in the hope that the next one is <em>the</em> one, the mythical box with 52 Malteasers?</p>
+<p>We may never know. But one thing I do know is that I won’t be sharing my Maltesers.</p>
+</div>
+<div id="disclaimer" class="section level2">
+<h2>DISCLAIMER</h2>
+<p>This blogpost is all made in the name of fun and probability - I have no beef with Mars Inc <sup>-</sup></p>
+</div>

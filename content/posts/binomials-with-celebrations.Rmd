@@ -1,0 +1,221 @@
+---
+title: "Is Your Box of Celebrations Chocolates Biased?"
+author: "Sophie Bennett"
+date: "16 Apr 2020"
+output: html_document
+---
+
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE)
+```
+
+```{r libs, include = FALSE}
+
+library(tidyverse)
+extrafont::loadfonts(device = "win")
+
+```
+
+```{r data, include = FALSE}
+
+celebrations <- tribble(~type, ~count, ~popularity,
+                        "Mars", 52, 15,
+                        "Snickers", 38, 23,
+                        "Malteasers", 32, 39, 
+                        "Galaxy", 23, 29,
+                        "Galaxy Caramel", 22, 27,
+                        "Twix", 20, 18, 
+                        "Bounty", 36, 24,
+                        "Milky Way", 44, 16)
+
+celebrations_red <- "#D92121"
+
+celebrations_gold <- "#D7BE69"
+
+celebrations_brown <- "#8A440A"
+
+
+```
+
+We surely all  know the feeling of disappointment when the best chocolates in the Celebrations box are all gone and there's only the rubbish ones left in the tub. Myself being particularly fond of the Malterers and Galaxy chocolates, I've often felt a little suspicious that there might not be as many of them in a box than the other chocolates. But, I've never had a chance to put my suspicions to the test... 
+
+This all changed a couple of days ago, as we came into the possession of a 2.4 kg box of celebrations(!). So, for fun, my partner and I decided to count up the number of each type of chocolate in the box. (You might take this as a sign of social distancing-induced boredom, but no, this kind of behaviour is pretty much the norm for us).
+
+And with that, we finally had the data we'd been longing for:
+
+```{r chocolate plot, fig.align="center", echo = FALSE}
+
+celebrations %>% 
+  ggplot(aes(reorder(type, count), count)) +
+  geom_col(fill = celebrations_red, alpha = 0.9) +
+  theme_minimal() +
+  labs(x = "",
+       y = "Total in Box",
+       title = "Content of Our 2.4kg Celebrations Box") +
+  coord_flip() +
+  geom_hline(yintercept = 33.375, linetype = "dashed", colour = celebrations_brown, size = 1.3) +
+  theme(text = element_text(family = "Arial Nova"),
+        axis.title = element_text(size = 11, colour = "gray20"),
+        axis.text = element_text(size = 10),
+        axis.ticks = element_line(colour = NA),
+        plot.title = element_text(hjust = 0.5),
+        panel.background = element_rect(colour = celebrations_gold, size = 2),
+        panel.grid = element_blank())
+
+```
+
+There were 267 chocolates in total in the box, and 8 types of chocolate. If there were _equal_ numbers of each type of chocolate, that would mean 33.375 chocolates of each type - or, to be more realistic, somewhere between 32-34 of each type.
+
+But in our box, there were a whopping 52 Mars Bars, and 44 Milky Ways... and only around 20 Galaxy and Galaxy Caramels. Unfortunate, since neither of us like Mars Bars or Milky Way all that much.
+
+Now, the distribution of chocolates within our box got me ever more suspicious. Could Mars Inc be overfilling Celebrations with certain types of chocolate at the expense of others?
+
+Nothing that a good bit of statistics and probability can't help us answer!
+
+## Stats Time!
+
+Let's first suppose that the company _aren't_ hand-picking every single chocolate to ensure the same number of chocolate types in each day.
+
+Instead, let's suppose the company produce equal amounts of each type of chocolate, and a random selection goes into each box.
+
+In this scenario, even if usually, the number of each type of chocolate should turn out roughly equal, we'd expect there to sometimes be boxes with a surprisingly larger number of some types of chocolates over others.
+
+But how likely would we be to see the distribution of chocolate types as unequal as what we observed in our own Celebrations box? 
+
+Since our data consists of counts of categorical data, we can answer this question with a chi-squared test comparing our observed frequency to the expected average frequency (i.e. equal numbers of each type of chocolate).
+
+```{r chi-squared prep, echo = FALSE}
+
+table <- celebrations %>% 
+  select(type, count) %>% 
+  uncount(count) %>% 
+  table()
+
+```
+<div class="highlight">
+```{r chi-squared, echo = TRUE}
+
+chisq.test(table, p = rep(0.125, 8))
+
+```
+</div>
+
+With a p-value of 0.0003, our observed frequency is looking pretty unlikely, if the chocolates really are selected randomly from an equal number of each chocolate type.
+
+Next, focussing _just_ on the Mars Bars - since they're the most frequent (and most suspicious) chocolate in our box by far... if the chocolate selection is made at random, from a pool of chocolate types of equal number, what's the probability of ending up with 52 Mars Bars in a box of 267?
+
+Here, we have a binary outcome: Mars, or not Mars. This therefore becomes a classic binomial problem. If each type of chocolate is equally likely to be selected, the probability _p_ of picking a Mars Bar is 1/8, or _p_ = 0.125. The probability of picking something other than a Mars Bar is 1 - _p_ = 0.875.
+
+Then we can calculate the probability of picking 52 Mars Bars out of 267 using this formula:
+
+P(x) = N! / k!(N-k)!  .  _p_^k^(1-_p_)^N^ ^-^ ^k^
+
+where N is the total number and k is the number of successful outcomes (in this case, the number of Mars Bars).
+
+Although we can calculate this by hand, r provides a handy function, dbinom() to calculate binomial probabilities.
+
+<div class="highlight">
+```{r binomial, echo = TRUE}
+
+dbinom(52, size = 267, prob = 0.125)
+
+```
+</div>
+
+So, the probability of obtaining 52 Mars Bars in a box of 257 Celebrations, if all types of chocolate are equally likely to be picked, is 0.0003.
+
+To make even clearer how unlikely this is, here's where our outcome sits on a probability distribution:
+
+```{r binomial plot, fig.align="center", echo = FALSE}
+
+x <- seq(0, 267, by = 1)
+
+y <- dbinom(x, 267, 0.125)
+
+binom_dist <- tibble(num_mars= x, probability= y)
+
+binom_dist %>% 
+  ggplot(aes(num_mars, probability)) +
+  geom_point(alpha = 0.6) +
+  geom_vline(xintercept = 52, linetype = "dashed", size = 1) +
+  labs(x = "Number of Mars Bars in Box",
+       y = "Probability",
+       title = "Binomial Probability Distribution") +
+  theme_minimal() +
+  theme(text = element_text(family = "Arial Nova"),
+        plot.title = element_text(hjust = 0.5),
+        axis.title = element_text(size = 11, colour = "gray20"),
+        axis.text = element_text(size = 10),
+        panel.grid = element_line(colour = "#fcf3d4")) +
+  annotate("text", x = 77, y = 0.003, label = "52 Mars Bars")
+
+```
+
+## Data Time!
+
+At this point, it's looking more and more like the selection of chocolates in the box is biased.
+
+However, I _am_ making my inferring on the basis of just a single sample. To be more certain, I'd need to do this with more Celebrations boxed... but with 2.4 kg of chocolate, it doesn't look like we'll be buying more anytime soon/
+
+In the absence of more samples, I decided to collect anecdotal evidence from google. My google search revealed to me that other people have had similar experiences to ours:
+
+First, I found some stellar reporting from the Liverpool Echo [here](https://www.liverpoolecho.co.uk/whats-on/food-drink-news/analysed-contents-celebrations-tub-what-14064752), confirming an abundance of Mars Bars in their sample.
+
+Then, I found this [hero](https://moreknownthanproven.wordpress.com/2016/01/09/how-many-sweets-in-a-celebrations-tub/) who _also_ counted up the number of chocolates in his Celebrations box, and even got 13 more people involved! And what would you know, Mars Bars were again the clear winner.
+
+But why is this going on? Why are our Celebrations boxes overfilled with Mars Bars?
+
+Now, a simple answer could be that Mars Bars are in fact the most popular chocolate type, and the company are merely  this catering to the tastes of the nation.
+
+It turns out, YouGov have conducted a [poll on this subject].(https://yougov.co.uk/topics/politics/articles-reports/2017/12/13/ranked-best-christmas-chocolates)
+
+The results possibly _won't_ shock you:
+
+```{r favourite chocs plot, fig.align="center", echo = FALSE}
+
+celebrations %>% 
+  mutate(position = case_when(
+    type == "Malteasers" ~ "1",
+    type == "Galaxy" ~ "2",
+    type == "Galaxy Caramel" ~ "3",
+    TRUE ~ "4"
+  )) %>% 
+  ggplot(aes(reorder(type, popularity), popularity)) +
+  geom_col(aes(fill = position), alpha = 0.9) +
+  theme_minimal() +
+  labs(x = "",
+       y = "Percentage",
+       title = "% of Celebrations-Eating Britons Who Prefer The Following Chocolate:",
+       subtitle = "Data obtained from YouGov.co.uk") +
+  coord_flip() +
+  theme(text = element_text(family = "Arial Nova"),
+        panel.background = element_rect(colour = celebrations_gold, size = 1.4),
+        axis.title = element_text(size = 10, colour = "gray20"),
+        axis.text = element_text(size = 9),
+        panel.grid = element_blank(),
+        legend.position = "none",
+        plot.subtitle = element_text(size = 8)) +
+  scale_fill_manual(values = c(celebrations_red, celebrations_brown, celebrations_gold, "gray80"))
+
+```
+
+Malteasers are the nation's favourite, across all age groups - and also my personal favourites, so I'm clearly basic af.
+
+Mars on the otherhand, is the nation's _least_ favourite...
+
+Clearly this isn't a case of the company catering to the nation's tastes... so what else could explain this? Is it an attempt to change public opinion? Are Mars Bars cheaper to produce? Or is it all designed to encourage us to buy _more_ boxes, in the hope that the next one is _the_ one, the mythical box with 52 Malteasers? 
+
+We may never know. But one thing I do know is that I won't be sharing my Maltesers.
+
+## DISCLAIMER
+This blogpost is all made in the name of fun and probability - I have no beef with Mars Inc ^-^
+
+
+
