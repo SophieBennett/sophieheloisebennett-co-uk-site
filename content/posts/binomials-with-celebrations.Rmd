@@ -44,7 +44,7 @@ celebrations_brown <- "#8A440A"
 
 ```
 
-We surely all  know the feeling of disappointment when the best chocolates in the Celebrations box are all gone and there's only the rubbish ones left in the tub. Myself being particularly fond of the Malterers and Galaxy chocolates, I've often felt a little suspicious that there might not be as many of them in a box than the other chocolates. But, I've never had a chance to put my suspicions to the test... 
+We surely all  know the feeling of disappointment when the best chocolates in the Celebrations box are all gone and there's only the rubbish ones left in the tub. Myself being particularly fond of the Malteasers and Galaxy chocolates, I've often felt a little suspicious that there might not be as many of them in a box than the other chocolates. But, I've never had a chance to put my suspicions to the test... 
 
 This all changed a couple of days ago, as we came into the possession of a 2.4 kg box of celebrations(!). So, for fun, my partner and I decided to count up the number of each type of chocolate in the box. (You might take this as a sign of social distancing-induced boredom, but no, this kind of behaviour is pretty much the norm for us).
 
@@ -129,7 +129,7 @@ dbinom(52, size = 267, prob = 0.125)
 ```
 </div>
 
-So, the probability of obtaining 52 Mars Bars in a box of 257 Celebrations, if all types of chocolate are equally likely to be picked, is 0.0003.
+So, the probability of obtaining 52 Mars Bars in a box of 267 Celebrations, if all types of chocolate are equally likely to be picked, is 0.0003.
 
 To make even clearer how unlikely this is, here's where our outcome sits on a probability distribution:
 
@@ -160,7 +160,7 @@ binom_dist %>%
 
 At this point, it's looking more and more like the selection of chocolates in the box is biased.
 
-However, I _am_ making my inferring on the basis of just a single sample. To be more certain, I'd need to do this with more Celebrations boxes... but with 2.4 kg of chocolate, it doesn't look like we'll be buying more anytime soon/
+However, I _am_ making my inferring on the basis of just a single sample. To be more certain, I'd need to do this with more Celebrations boxes... but with 2.4 kg of chocolate, it doesn't look like we'll be buying more anytime soon!
 
 In the absence of more samples, I decided to collect anecdotal evidence from google. My google search revealed to me that other people have had similar experiences to ours:
 

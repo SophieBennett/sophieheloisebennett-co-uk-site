@@ -13,7 +13,7 @@ output: html_document
     background-color:#ECECEC;
   }
 </style>
-<p>We surely all know the feeling of disappointment when the best chocolates in the Celebrations box are all gone and there’s only the rubbish ones left in the tub. Myself being particularly fond of the Malterers and Galaxy chocolates, I’ve often felt a little suspicious that there might not be as many of them in a box than the other chocolates. But, I’ve never had a chance to put my suspicions to the test…</p>
+<p>We surely all know the feeling of disappointment when the best chocolates in the Celebrations box are all gone and there’s only the rubbish ones left in the tub. Myself being particularly fond of the Malteasers and Galaxy chocolates, I’ve often felt a little suspicious that there might not be as many of them in a box than the other chocolates. But, I’ve never had a chance to put my suspicions to the test…</p>
 <p>This all changed a couple of days ago, as we came into the possession of a 2.4 kg box of celebrations(!). So, for fun, my partner and I decided to count up the number of each type of chocolate in the box. (You might take this as a sign of social distancing-induced boredom, but no, this kind of behaviour is pretty much the norm for us).</p>
 <p>And with that, we finally had the data we’d been longing for:</p>
 <p><img src="/posts/binomials-with-celebrations_files/figure-html/chocolate%20plot-1.png" width="672" style="display: block; margin: auto;" /></p>
@@ -47,14 +47,14 @@ output: html_document
 <pre class="r"><code>dbinom(52, size = 267, prob = 0.125)</code></pre>
 <pre><code>## [1] 0.0003406686</code></pre>
 </div>
-<p>So, the probability of obtaining 52 Mars Bars in a box of 257 Celebrations, if all types of chocolate are equally likely to be picked, is 0.0003.</p>
+<p>So, the probability of obtaining 52 Mars Bars in a box of 267 Celebrations, if all types of chocolate are equally likely to be picked, is 0.0003.</p>
 <p>To make even clearer how unlikely this is, here’s where our outcome sits on a probability distribution:</p>
 <p><img src="/posts/binomials-with-celebrations_files/figure-html/binomial%20plot-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="data-time" class="section level2">
 <h2>Data Time!</h2>
 <p>At this point, it’s looking more and more like the selection of chocolates in the box is biased.</p>
-<p>However, I <em>am</em> making my inferring on the basis of just a single sample. To be more certain, I’d need to do this with more Celebrations boxes… but with 2.4 kg of chocolate, it doesn’t look like we’ll be buying more anytime soon/</p>
+<p>However, I <em>am</em> making my inferring on the basis of just a single sample. To be more certain, I’d need to do this with more Celebrations boxes… but with 2.4 kg of chocolate, it doesn’t look like we’ll be buying more anytime soon!</p>
 <p>In the absence of more samples, I decided to collect anecdotal evidence from google. My google search revealed to me that other people have had similar experiences to ours:</p>
 <p>First, I found some stellar reporting from the Liverpool Echo <a href="https://www.liverpoolecho.co.uk/whats-on/food-drink-news/analysed-contents-celebrations-tub-what-14064752">here</a>, confirming an abundance of Mars Bars in their sample.</p>
 <p>Then, I found this <a href="https://moreknownthanproven.wordpress.com/2016/01/09/how-many-sweets-in-a-celebrations-tub/">hero</a> who <em>also</em> counted up the number of chocolates in his Celebrations box, and even got 13 more people involved! And what would you know, Mars Bars were again the clear winner.</p>
