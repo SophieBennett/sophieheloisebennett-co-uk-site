@@ -160,7 +160,7 @@ binom_dist %>%
 
 At this point, it's looking more and more like the selection of chocolates in the box is biased.
 
-However, I _am_ making my inferring on the basis of just a single sample. To be more certain, I'd need to do this with more Celebrations boxed... but with 2.4 kg of chocolate, it doesn't look like we'll be buying more anytime soon/
+However, I _am_ making my inferring on the basis of just a single sample. To be more certain, I'd need to do this with more Celebrations boxes... but with 2.4 kg of chocolate, it doesn't look like we'll be buying more anytime soon/
 
 In the absence of more samples, I decided to collect anecdotal evidence from google. My google search revealed to me that other people have had similar experiences to ours:
 
