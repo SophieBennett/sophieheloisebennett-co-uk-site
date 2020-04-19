@@ -131,6 +131,17 @@ dbinom(52, size = 267, prob = 0.125)
 
 So, the probability of obtaining 52 Mars Bars in a box of 267 Celebrations, if all types of chocolate are equally likely to be picked, is 0.0003.
 
+Now, this is only the _point_ probability , aka the probability of obtaining _exactly_ 52 Mars Bars in the box, but we can also calculate the probability of obtaining **52 or more** Mars Bars in our Celebrations box to give us a p-value:
+
+```{r binomial p-value, echo = TRUE}
+
+# with lower.tail set to FALSE, pbinom gives P(X > x) so I have set n equal to 51
+pbinom(51, size = 267, prob = 0.125, lower.tail = FALSE)
+
+```
+
+Not looking much better. 
+
 To make even clearer how unlikely this is, here's where our outcome sits on a probability distribution:
 
 ```{r binomial plot, fig.align="center", echo = FALSE}

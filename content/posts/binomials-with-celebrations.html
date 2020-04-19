@@ -48,6 +48,11 @@ output: html_document
 <pre><code>## [1] 0.0003406686</code></pre>
 </div>
 <p>So, the probability of obtaining 52 Mars Bars in a box of 267 Celebrations, if all types of chocolate are equally likely to be picked, is 0.0003.</p>
+<p>Now, this is only the <em>point</em> probability , aka the probability of obtaining <em>exactly</em> 52 Mars Bars in the box, but we can also calculate the probability of obtaining <strong>52 or more</strong> Mars Bars in our Celebrations box to give us a p-value:</p>
+<pre class="r"><code># with lower.tail set to FALSE, pbinom gives P(X &gt; x) so I have set n equal to 51
+pbinom(51, size = 267, prob = 0.125, lower.tail = FALSE)</code></pre>
+<pre><code>## [1] 0.0007809731</code></pre>
+<p>Not looking much better.</p>
 <p>To make even clearer how unlikely this is, here’s where our outcome sits on a probability distribution:</p>
 <p><img src="/posts/binomials-with-celebrations_files/figure-html/binomial%20plot-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
