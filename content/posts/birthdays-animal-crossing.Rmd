@@ -26,7 +26,7 @@ In a room of 23 people, what's the probability that at least two of them will sh
 
 This is an example of the classic [Birthday Problem](https://en.wikipedia.org/wiki/Birthday_problem). The trick to calculating it is to start by calculating the **complement**,  - i.e. the probability that _no one_ in the room shares the same birthday. Then, this probability is subtracted from 1:
 
-![ ](../../resources/animal-crossing/bday-problem.png)
+![](/posts/birthdays-animal-crossing_files/bday-problem.PNG)
 
 (I won't go into why this works here, as there are already plenty of good explanations out there on the internet).
 
@@ -189,4 +189,4 @@ As for the mere 60 sharing villagers in the actual Animal Crossing dataset? Well
 
 Conclusion? These Animal Crossing villagers really need to learn how to share more. 
 
-Final fun fact: I just looked up whether I share my birthday with a villager. Apparently I share my birthday with Kevin, a male ~~chauvinist~~ jock pig, whose catchprhase is apparently "weeweewee". Great.
+Final fun fact: I just looked up whether I share my birthday with a villager. Apparently I share my birthday with Kevin, a male ~~chauvinist~~ jock pig, whose catchphrase is apparently "weeweewee". Great.

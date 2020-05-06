@@ -16,7 +16,7 @@ output: html_document
 <p>In a room of 23 people, what’s the probability that at least two of them will share the same birthday? The answer is around 50%, a lot more than people usually expect.</p>
 <p>This is an example of the classic <a href="https://en.wikipedia.org/wiki/Birthday_problem">Birthday Problem</a>. The trick to calculating it is to start by calculating the <strong>complement</strong>, - i.e. the probability that <em>no one</em> in the room shares the same birthday. Then, this probability is subtracted from 1:</p>
 <div class="figure">
-<img src="../../resources/animal-crossing/bday-problem.png" />
+<img src="/posts/birthdays-animal-crossing_files/bday-problem.PNG" />
 
 </div>
 <p>(I won’t go into why this works here, as there are already plenty of good explanations out there on the internet).</p>
@@ -154,4 +154,4 @@ obs_duplicates &lt;- tibble(sample_num = seq(1:50000),
 <p>The simulated data shows us that on average, we would expect roughly 257 villagers to share a birthday with another villager.</p>
 <p>As for the mere 60 sharing villagers in the actual Animal Crossing dataset? Well, across 50,000 samples, I didn’t get a number as small as 60 even once. So that’s looking… very unlikely by chance.</p>
 <p>Conclusion? These Animal Crossing villagers really need to learn how to share more.</p>
-<p>Final fun fact: I just looked up whether I share my birthday with a villager. Apparently I share my birthday with Kevin, a male <del>chauvinist</del> jock pig, whose catchprhase is apparently “weeweewee”. Great.</p>
+<p>Final fun fact: I just looked up whether I share my birthday with a villager. Apparently I share my birthday with Kevin, a male <del>chauvinist</del> jock pig, whose catchphrase is apparently “weeweewee”. Great.</p>
