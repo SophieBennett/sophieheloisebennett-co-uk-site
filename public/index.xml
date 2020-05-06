@@ -6,10 +6,20 @@
     <description>Recent content on Sophie Bennett</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 25 Apr 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 06 May 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Animal Crossing New Horizons: A New Birthday Problem</title>
+      <link>/posts/birthdays-animal-crossing/</link>
+      <pubDate>Wed, 06 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/posts/birthdays-animal-crossing/</guid>
+      <description>pre.r { color:#000;background-color:#ECECEC;}In a room of 23 people, what’s the probability that at least two of them will share the same birthday? The answer is around 50%, a lot more than people usually expect.
+This is an example of the classic Birthday Problem. The trick to calculating it is to start by calculating the complement, - i.e. the probability that no one in the room shares the same birthday.</description>
+    </item>
     
     <item>
       <title>Gains Checker - An Adventure in Shiny Apps</title>

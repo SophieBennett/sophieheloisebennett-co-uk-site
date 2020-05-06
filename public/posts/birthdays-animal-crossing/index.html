@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Sophie Bennett">
+    <meta name="description" content="Sophie Bennett&#39;s personal website">
+    <meta name="keywords" content="blog,data,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Animal Crossing New Horizons: A New Birthday Problem"/>
+<meta name="twitter:description" content="pre.r { color:#000;background-color:#ECECEC;}In a room of 23 people, what’s the probability that at least two of them will share the same birthday? The answer is around 50%, a lot more than people usually expect.
+This is an example of the classic Birthday Problem. The trick to calculating it is to start by calculating the complement, - i.e. the probability that no one in the room shares the same birthday."/>
+
+    <meta property="og:title" content="Animal Crossing New Horizons: A New Birthday Problem" />
+<meta property="og:description" content="pre.r { color:#000;background-color:#ECECEC;}In a room of 23 people, what’s the probability that at least two of them will share the same birthday? The answer is around 50%, a lot more than people usually expect.
+This is an example of the classic Birthday Problem. The trick to calculating it is to start by calculating the complement, - i.e. the probability that no one in the room shares the same birthday." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/posts/birthdays-animal-crossing/" />
+<meta property="article:published_time" content="2020-05-06T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-05-06T00:00:00+00:00" />
+
+
+    
+      <base href="/posts/birthdays-animal-crossing/">
+    
+    <title>
+  Animal Crossing New Horizons: A New Birthday Problem · Sophie Bennett
+</title>
+
+    
+      <link rel="canonical" href="/posts/birthdays-animal-crossing/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="/css/coder.min.ab11da33926aff1bbed738198c81361e84bf702098a3e97ed5b24126bde6c9ba.css" integrity="sha256-qxHaM5Jq/xu&#43;1zgZjIE2HoS/cCCYo&#43;l&#43;1bJBJr3mybo=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/images/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.69.0" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">
+      Sophie Bennett
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/about/">About</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/projects/">Projects</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/contact/">Contact me</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">Animal Crossing New Horizons: A New Birthday Problem</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2020-05-06T00:00:00Z'>
+                May 6, 2020
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              6-minute read
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        
+
+
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
+<p>In a room of 23 people, what’s the probability that at least two of them will share the same birthday? The answer is around 50%, a lot more than people usually expect.</p>
+<p>This is an example of the classic <a href="https://en.wikipedia.org/wiki/Birthday_problem">Birthday Problem</a>. The trick to calculating it is to start by calculating the <strong>complement</strong>, - i.e. the probability that <em>no one</em> in the room shares the same birthday. Then, this probability is subtracted from 1:</p>
+<div class="figure">
+<img src="../../resources/animal-crossing/bday-problem.png" />
+
+</div>
+<p>(I won’t go into why this works here, as there are already plenty of good explanations out there on the internet).</p>
+<p>But, what does this have to do with Animal Crossing New Horizons?</p>
+<p>Well, this week’s #TidyTuesday dataset is Animal Crossing themed! Amongst the csvs <a href="https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-05-05">provided on github</a>, is one called <code>villagers.csv</code>, displaying information about the 391 possible villagers that might move to your island on the game.</p>
+<p>This dataset helpfully includes each villager’s birthday - after all, you wouldn’t want to be the kind of neighbour who forgot another villager’s birthday, now would you?</p>
+<div class="highlight">
+<pre class="r"><code>villagers %&gt;% 
+  head(10)</code></pre>
+<pre><code>## # A tibble: 10 x 11
+##    row_n id    name  gender species birthday personality song  phrase full_id
+##    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;  
+##  1     2 admi~ Admi~ male   bird    1-27     cranky      Stee~ aye a~ villag~
+##  2     3 agen~ Agen~ female squirr~ 7-2      peppy       DJ K~ sidek~ villag~
+##  3     4 agnes Agnes female pig     4-21     uchi        K.K.~ snuff~ villag~
+##  4     6 al    Al    male   gorilla 10-18    lazy        Stee~ Ayyee~ villag~
+##  5     7 alfo~ Alfo~ male   alliga~ 6-9      lazy        Fore~ it&#39;sa~ villag~
+##  6     8 alice Alice female koala   8-19     normal      Surf~ guvnor villag~
+##  7     9 alli  Alli  female alliga~ 11-8     snooty      K.K.~ graaa~ villag~
+##  8    10 amel~ Amel~ female eagle   11-19    snooty      K.K.~ eaglet villag~
+##  9    11 anab~ Anab~ female anteat~ 2-16     peppy       Aloh~ snorty villag~
+## 10    13 anch~ Anch~ male   bird    3-4      lazy        K.K.~ chuurp villag~
+## # ... with 1 more variable: url &lt;chr&gt;</code></pre>
+</div>
+<p>Now, seeing as there are 365 possible birthdays (or 366 on a leap year), and 391 villagers, solving the Birthday Problem is incredibly easy for this dataset. There’s no possible way for some villagers <em>not</em> to wind up sharing a birthday!</p>
+<p>We can confirm that some villagers share birthdays by counting the number of dates that appear more than once in birthdays:</p>
+<div class="highlight">
+<pre class="r"><code>villagers %&gt;% 
+  count(birthday, sort = TRUE) %&gt;% 
+  filter(n &gt; 1) %&gt;% 
+  head(10)</code></pre>
+<pre><code>## # A tibble: 10 x 2
+##    birthday     n
+##    &lt;chr&gt;    &lt;int&gt;
+##  1 1-27         2
+##  2 10-1         2
+##  3 10-12        2
+##  4 10-13        2
+##  5 10-15        2
+##  6 10-21        2
+##  7 10-24        2
+##  8 10-6         2
+##  9 12-1         2
+## 10 12-29        2</code></pre>
+</div>
+<p>There are 30 dates that appear more than once. We can also see that the total number of villagers sharing a birthday never exceeds two. This means that, in our villagers dataset, there are 60 villagers who share a birthday with another villager.</p>
+<p>We can see this clearly by plotting the number of birtdays per date in a tileplot:</p>
+<div class="highlight">
+<pre class="r"><code>all_dates &lt;- tibble(days = seq(as.Date(&quot;2002-01-01&quot;), as.Date(&quot;2002-12-31&quot;), &quot;days&quot;))
+
+# prepare data for calendar plot
+bday_per_date &lt;- villagers %&gt;% 
+  mutate(birthday = lubridate::ymd(paste(&quot;2002&quot;, birthday, sep = &quot;-&quot;))) %&gt;% 
+  count(birthday) %&gt;% 
+  right_join(all_dates, by = c(&quot;birthday&quot; = &quot;days&quot;)) %&gt;% 
+  mutate(n = ifelse(is.na(n), 0, n)) %&gt;% 
+  rename(num_villagers = &quot;n&quot;, date = &quot;birthday&quot;) %&gt;% 
+  mutate(month = lubridate::month(date, abbr = TRUE, label = TRUE)) %&gt;% 
+  mutate(monthday = lubridate::day(date)) %&gt;% 
+  mutate(week = as.numeric(format(date, &quot;%W&quot;))) %&gt;% 
+  mutate(weekday = factor(weekdays(date, abbreviate = TRUE), 
+                          ordered = TRUE, 
+                          levels = c(&quot;Sat&quot;, &quot;Fri&quot;, &quot;Thu&quot;, &quot;Wed&quot;, &quot;Tue&quot;, &quot;Mon&quot;, &quot;Sun&quot;))) %&gt;% 
+  group_by(month) %&gt;% 
+  mutate(monthweek = 1 + week - min(week)) 
+
+# calendar tile plot
+bday_per_date %&gt;% 
+  ggplot(aes(monthweek, weekday, fill = num_villagers)) +
+  geom_tile(colour = &quot;gray98&quot;, alpha = 0.9) +
+  geom_text(aes(label = monthday), size = 2.5, alpha = 0.9, colour = &quot;gray20&quot;) +
+  facet_wrap(~month) +
+  labs(x = &quot;Week of Month&quot;,
+       y = &quot;&quot;,
+       fill = &quot;No. of Birthdays&quot;,
+       title = &quot;Animal Crossing Villager Birthdays&quot;) +
+  theme(text = element_text(family = &quot;Arial Nova&quot;),
+        panel.background = element_rect(fill = &quot;gray98&quot;),
+        panel.grid = element_blank(),
+        legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10, colour = &quot;gray10&quot;),
+        axis.title = element_text(colour = &quot;gray10&quot;),
+        plot.title = element_text(size = 14),
+        strip.background = element_rect(fill = &quot;#cff5f5&quot;)) +
+  scale_fill_gradient(low = &quot;#FFC371&quot;, high = &quot;#FF5F6D&quot;, breaks = c(0, 1, 2))  </code></pre>
+<p><img src="/posts/birthdays-animal-crossing_files/figure-html/calendarplot-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<p>So, there are 30 non-unique birthday dates, and 60 villagers share a birthday with another villager, meaning that no more than two villagers share a birthday. Hmmm…</p>
+<p>Now, I have every reason to suspect that the birthday date allocation is not random in animal crossing. I imagine the game makers will have tried to avoid having multiple villagers on the same island with the same birthday. The fact that we never see more than two villagers with the same birthday definitely seems to corroborate this.</p>
+<p>Nonetheless, it does lead to an interesting question: if the birthday dates of the villagers were set randomly and independently, how likely would we be to get just 60 villagers with a shared birthday? And, how many of the 391 villagers would we, on average, <em>expect</em> to see share a birthday?</p>
+<p>I tried looking up existing solutions to this, and didn’t get very far. It basically looks to a) be complicated and b) involve some very big numbers.</p>
+<p>But, there’s a much simpler approach available! Instead of trying to find an exact solution, we can use simulated data.</p>
+<p>First, we need a function that randomly generates a birthday date from one of the 365 days of the year, for each of our 391 Animal Crossing villagers.</p>
+<div class="highlight">
+<pre class="r"><code>days &lt;- seq(from = 1, to = 365, by = 1)
+
+sample_birthdays &lt;- function() {
+  
+  sample_dates &lt;- sample(days, 391, replace=TRUE)
+  
+  count_dates &lt;- table(sample_dates)
+  
+  return(sum(count_dates[count_dates &gt; 1]))
+
+}</code></pre>
+</div>
+<p>The function I’ve created here randomly samples from the numbers 1-365 with replacement 391 times, and returns the total number of duplicate data points (corresponding to our villagers who share a birthday with someone else).</p>
+<p>Next, we need to run the function multiple times to generate a large number of samples. Here, I use the <code>replicate()</code> function to generate 50,000 samples.</p>
+<div class="highlight">
+<pre class="r"><code>set.seed(2025)
+
+num_sharing_villagers &lt;- replicate(50000, sample_birthdays())
+
+obs_duplicates &lt;- tibble(sample_num = seq(1:50000),
+       num_sharing_villagers = num_sharing_villagers)</code></pre>
+</div>
+<p>If only all data collection were this simple.</p>
+<p>Finally, we can plot a histogram showing the number of villagers sharing a birthday across all 50,000 samples.</p>
+<div class="highlight">
+<pre class="r"><code>obs_duplicates %&gt;% 
+  ggplot() +
+  geom_histogram(aes(num_sharing_villagers), 
+                 alpha = 0.8, 
+                 fill = &quot;#FFC371&quot;,
+                 bins = 30) +
+  labs(x = &quot;Number of Villagers With a Shared Birthday&quot;,
+       y = &quot;Frequency&quot;) +
+  theme_minimal() +
+  theme(text = element_text(family = &quot;Arial Nova&quot;),
+        axis.title.x = element_text(vjust = -0.2, colour = &quot;gray10&quot;),
+        axis.title.y = element_text(vjust = 1.2, colour = &quot;gray10&quot;)) +
+  geom_vline(xintercept = 257, linetype = &quot;dashed&quot;, size = 1, colour = &quot;gray75&quot;)</code></pre>
+<p><img src="/posts/birthdays-animal-crossing_files/figure-html/histogram-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<p>The simulated data shows us that on average, we would expect roughly 257 villagers to share a birthday with another villager.</p>
+<p>As for the mere 60 sharing villagers in the actual Animal Crossing dataset? Well, across 50,000 samples, I didn’t get a number as small as 60 even once. So that’s looking… very unlikely by chance.</p>
+<p>Conclusion? These Animal Crossing villagers really need to learn how to share more.</p>
+<p>Final fun fact: I just looked up whether I share my birthday with a villager. Apparently I share my birthday with Kevin, a male <del>chauvinist</del> jock pig, whose catchprhase is apparently “weeweewee”. Great.</p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    
+  </section>
+
+      </div>
+
+      <footer class="footer">
+  <section class="container">
+    
+    
+      
+        © 2019 - 2020
+      
+       Sophie Bennett 
+    
+    
+       · 
+      Powered by <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+    
+    
+       · 
+      [<a href="https://github.com/luizdepra/hugo-coder/tree/"></a>]
+    
+  </section>
+</footer>
+
+    </main>
+
+    
+
+  </body>
+
+</html>

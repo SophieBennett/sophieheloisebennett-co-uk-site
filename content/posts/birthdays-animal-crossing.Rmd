@@ -1,0 +1,192 @@
+---
+title: "Animal Crossing New Horizons: A New Birthday Problem"
+author: "Sophie Bennett"
+date: "2020-05-06"
+output: html_document
+---
+
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
+
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE, error=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libs, include=FALSE}
+library(tidyverse)
+extrafont::loadfonts(device="win")
+```
+
+In a room of 23 people, what's the probability that at least two of them will share the same birthday? The answer is around 50%, a lot more than people usually expect.
+
+This is an example of the classic [Birthday Problem](https://en.wikipedia.org/wiki/Birthday_problem). The trick to calculating it is to start by calculating the **complement**,  - i.e. the probability that _no one_ in the room shares the same birthday. Then, this probability is subtracted from 1:
+
+![ ](../../resources/animal-crossing/bday-problem.png)
+
+(I won't go into why this works here, as there are already plenty of good explanations out there on the internet).
+
+But, what does this have to do with Animal Crossing New Horizons?
+
+Well, this week's #TidyTuesday dataset is Animal Crossing themed! Amongst the csvs [provided on github](https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-05-05), is one called `villagers.csv`, displaying information about the 391 possible villagers that might move to your island on the game. 
+
+This dataset helpfully includes each villager's birthday - after all, you wouldn't want to be the kind of neighbour who forgot another villager's birthday, now would you? 
+
+```{r data, include=FALSE}
+
+villagers <- read_csv("../../resources/animal-crossing/villagers.csv")
+```
+<div class="highlight">
+```{r show table, include=TRUE}  
+
+villagers %>% 
+  head(10)
+
+```
+</div>
+
+Now, seeing as there are 365 possible birthdays (or 366 on a leap year), and 391 villagers, solving the Birthday Problem is incredibly easy for this dataset. There's no possible way for some villagers _not_ to wind up sharing a birthday!
+
+We can confirm that some villagers share birthdays by counting the number of dates that appear more than once in birthdays:
+
+<div class="highlight">
+```{r display data, include=TRUE}
+
+villagers %>% 
+  count(birthday, sort = TRUE) %>% 
+  filter(n > 1) %>% 
+  head(10)
+
+```
+</div>
+
+There are 30 dates that appear more than once. We can also see that the total number of villagers sharing a birthday never exceeds two. This means that, in our villagers dataset, there are 60 villagers who share a birthday with another villager.
+
+We can see this clearly by plotting the number of birtdays per date in a tileplot:
+
+<div class="highlight">
+```{r calendarplot, include=TRUE, fig.align="center"}
+
+all_dates <- tibble(days = seq(as.Date("2002-01-01"), as.Date("2002-12-31"), "days"))
+
+# prepare data for calendar plot
+bday_per_date <- villagers %>% 
+  mutate(birthday = lubridate::ymd(paste("2002", birthday, sep = "-"))) %>% 
+  count(birthday) %>% 
+  right_join(all_dates, by = c("birthday" = "days")) %>% 
+  mutate(n = ifelse(is.na(n), 0, n)) %>% 
+  rename(num_villagers = "n", date = "birthday") %>% 
+  mutate(month = lubridate::month(date, abbr = TRUE, label = TRUE)) %>% 
+  mutate(monthday = lubridate::day(date)) %>% 
+  mutate(week = as.numeric(format(date, "%W"))) %>% 
+  mutate(weekday = factor(weekdays(date, abbreviate = TRUE), 
+                          ordered = TRUE, 
+                          levels = c("Sat", "Fri", "Thu", "Wed", "Tue", "Mon", "Sun"))) %>% 
+  group_by(month) %>% 
+  mutate(monthweek = 1 + week - min(week)) 
+
+# calendar tile plot
+bday_per_date %>% 
+  ggplot(aes(monthweek, weekday, fill = num_villagers)) +
+  geom_tile(colour = "gray98", alpha = 0.9) +
+  geom_text(aes(label = monthday), size = 2.5, alpha = 0.9, colour = "gray20") +
+  facet_wrap(~month) +
+  labs(x = "Week of Month",
+       y = "",
+       fill = "No. of Birthdays",
+       title = "Animal Crossing Villager Birthdays") +
+  theme(text = element_text(family = "Arial Nova"),
+        panel.background = element_rect(fill = "gray98"),
+        panel.grid = element_blank(),
+        legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10, colour = "gray10"),
+        axis.title = element_text(colour = "gray10"),
+        plot.title = element_text(size = 14),
+        strip.background = element_rect(fill = "#cff5f5")) +
+  scale_fill_gradient(low = "#FFC371", high = "#FF5F6D", breaks = c(0, 1, 2))  
+
+```
+</div>
+
+So, there are 30 non-unique birthday dates, and 60 villagers share a birthday with another villager, meaning that no more than two villagers share a birthday. Hmmm... 
+
+Now, I have every reason to suspect that the birthday date allocation is not random in animal crossing. I imagine the game makers will have tried to avoid having multiple villagers on the same island with the same birthday. The fact that we never see more than two villagers with the same birthday definitely seems to corroborate this.
+
+Nonetheless, it does lead to an interesting question: if the birthday dates of the villagers were set randomly and independently, how likely would we be to get just 60 villagers with a shared birthday? And, how many of the 391 villagers would we, on average, _expect_ to see share a birthday?
+
+I tried looking up existing solutions to this, and didn't get very far. It basically looks to a) be complicated and b) involve some very big numbers. 
+
+But, there's a much simpler approach available! Instead of trying to find an exact solution, we can use simulated data. 
+
+First, we need a function that randomly generates a birthday date from one of the 365 days of the year, for each of our 391 Animal Crossing villagers.
+
+<div class="highlight">
+```{r sampling function, include=TRUE}
+
+days <- seq(from = 1, to = 365, by = 1)
+
+sample_birthdays <- function() {
+  
+  sample_dates <- sample(days, 391, replace=TRUE)
+  
+  count_dates <- table(sample_dates)
+  
+  return(sum(count_dates[count_dates > 1]))
+
+}
+
+```
+</div>
+
+The function I've created here randomly samples from the numbers 1-365 with replacement 391 times, and returns the total number of duplicate data points (corresponding to our villagers who share a birthday with someone else).
+
+Next, we need to run the function multiple times to generate a large number of samples. Here, I use the `replicate()` function to generate 50,000 samples.
+
+<div class="highlight">
+```{r simulation, include=TRUE}
+
+set.seed(2025)
+
+num_sharing_villagers <- replicate(50000, sample_birthdays())
+
+obs_duplicates <- tibble(sample_num = seq(1:50000),
+       num_sharing_villagers = num_sharing_villagers)
+
+```
+</div>
+
+If only all data collection were this simple.
+
+Finally, we can plot a histogram showing the number of villagers sharing a birthday across all 50,000 samples. 
+
+<div class="highlight">
+```{r histogram, include=TRUE, fig.align="center"}
+
+obs_duplicates %>% 
+  ggplot() +
+  geom_histogram(aes(num_sharing_villagers), 
+                 alpha = 0.8, 
+                 fill = "#FFC371",
+                 bins = 30) +
+  labs(x = "Number of Villagers With a Shared Birthday",
+       y = "Frequency") +
+  theme_minimal() +
+  theme(text = element_text(family = "Arial Nova"),
+        axis.title.x = element_text(vjust = -0.2, colour = "gray10"),
+        axis.title.y = element_text(vjust = 1.2, colour = "gray10")) +
+  geom_vline(xintercept = 257, linetype = "dashed", size = 1, colour = "gray75")
+
+```
+</div>
+
+The simulated data shows us that on average, we would expect roughly 257 villagers to share a birthday with another villager. 
+
+As for the mere 60 sharing villagers in the actual Animal Crossing dataset? Well, across 50,000 samples, I didn't get a number as small as 60 even once. So that's looking... very unlikely by chance. 
+
+Conclusion? These Animal Crossing villagers really need to learn how to share more. 
+
+Final fun fact: I just looked up whether I share my birthday with a villager. Apparently I share my birthday with Kevin, a male ~~chauvinist~~ jock pig, whose catchprhase is apparently "weeweewee". Great.
