@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Sophie Bennett">
+    <meta name="description" content="Sophie Bennett&#39;s personal website">
+    <meta name="keywords" content="blog,data,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Why Linear Regression Estimates the Conditional Mean"/>
+<meta name="twitter:description" content="pre.r { color:#000;background-color:#ECECEC;}Because you can never know too much about linear regression.
+IntroductionIf you look at any textbook on linear regression, you will find that it says the following:
+“Linear regression estimates the conditional mean of the response variable.”
+This means that, for a given value of the predictor variable \(X\), linear regression will give you the mean value of the response variable \(Y\)."/>
+
+    <meta property="og:title" content="Why Linear Regression Estimates the Conditional Mean" />
+<meta property="og:description" content="pre.r { color:#000;background-color:#ECECEC;}Because you can never know too much about linear regression.
+IntroductionIf you look at any textbook on linear regression, you will find that it says the following:
+“Linear regression estimates the conditional mean of the response variable.”
+This means that, for a given value of the predictor variable \(X\), linear regression will give you the mean value of the response variable \(Y\)." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/posts/linear-regression-conditional-mean/" />
+
+
+
+    
+      <base href="/posts/linear-regression-conditional-mean/">
+    
+    <title>
+  Why Linear Regression Estimates the Conditional Mean · Sophie Bennett
+</title>
+
+    
+      <link rel="canonical" href="/posts/linear-regression-conditional-mean/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="/css/coder.min.ab11da33926aff1bbed738198c81361e84bf702098a3e97ed5b24126bde6c9ba.css" integrity="sha256-qxHaM5Jq/xu&#43;1zgZjIE2HoS/cCCYo&#43;l&#43;1bJBJr3mybo=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/images/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.69.0" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">
+      Sophie Bennett
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/about/">About</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/projects/">Projects</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/contact/">Contact me</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">Why Linear Regression Estimates the Conditional Mean</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='0001-01-01T00:00:00Z'>
+                January 1, 0001
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              7-minute read
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        
+
+
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
+<p>Because you can never know too much about linear regression.</p>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>If you look at any textbook on linear regression, you will find that it says the following:</p>
+<p>“Linear regression estimates the <strong>conditional mean</strong> of the response variable.”</p>
+<p>This means that, for a given value of the predictor variable <span class="math inline">\(X\)</span>, linear regression will give you the <strong>mean</strong> value of the response variable <span class="math inline">\(Y\)</span>.</p>
+<p>Now, in and of itself, it’s a pretty neat fact… but, <em>why</em> is it true?</p>
+<p>Like me, you may have been tempted to take to google for an answer. And, like me, you <em>may</em> have found the online explanations hard to follow.</p>
+<p>This is my attempt to break down the explanation more simply.</p>
+</div>
+<div id="recap-on-linear-regression" class="section level2">
+<h2>Recap on Linear Regression</h2>
+<p>Let’s begin with a quick recap on linear regression.</p>
+<p>In (simple) linear regression, we are looking for a line of best fit to model the relationship between our predictor, <span class="math inline">\(X\)</span> and our response variable <span class="math inline">\(Y\)</span>.</p>
+<p>The line of best fit takes the form of an equation</p>
+<p><span class="math display">\[Y = \beta_{0} + \beta_{1}X\]</span></p>
+<p>where <span class="math inline">\(\beta_{0}\)</span> is the intercept, and <span class="math inline">\(\beta_{1}\)</span> is the coefficient of the slope.</p>
+<p>To find the intercept and slope coefficients of the line of best fit, linear regression uses the least squares method, which seeks to minimise the sum of squared deviations between the <span class="math inline">\(n\)</span> <strong>observed</strong> data points <span class="math inline">\(y_{1}...y_{n}\)</span> and the <strong>predicted</strong> values, which we’ll call <span class="math inline">\(\hat{y}\)</span>:</p>
+<p><span class="math display">\[\sum_{i=1}^{n} (y_{i} - \hat{y})^2\]</span></p>
+<p>And, it turns out that the line of best fit obtained with the least squares method <em>always</em> gives us the conditional mean of the response variable <span class="math inline">\(Y\)</span>.</p>
+<p>Now, this kinda answers our original question… but it also leads to a new question: why is minimising the sum of squared deviations equivalent to finding the conditional mean?</p>
+<p>The simple answer is that it can be proved mathematically that minimising the sum of squared deviations always gives you the conditional mean of the response variable.</p>
+<p>Let’s now look at how that works.</p>
+</div>
+<div id="the-sum-of-squared-deviations-method" class="section level2">
+<h2>The Sum of Squared Deviations Method</h2>
+<p>So far, we’ve talked about minimising the sum of squared deviations in the context of linear regression. However, we can also calculate a sum of squared deviations in other contexts too.</p>
+<p>For instance, let’s generate a dataset of 1000 numbers, with a mean of ~20 and a standard deviation of 2.</p>
+<div class="highlight">
+<pre class="r"><code>set.seed(8825)
+sample_data &lt;- rnorm(1000, mean = 20, sd = 2)
+
+# confirm mean is ~= 20
+mean(sample_data) </code></pre>
+<pre><code>## [1] 19.92143</code></pre>
+</div>
+<p>Now, we could calculate the sum of the squared deviations of each of these numbers from the mean…</p>
+<div class="highlight">
+<pre class="r"><code>sum((sample_data - mean(sample_data))^2)</code></pre>
+<pre><code>## [1] 4004.373</code></pre>
+</div>
+<p>…(which is exactly what we’d need to do to calculate the standard deviation of the set of numbers)</p>
+<p>And we could also calculate the sum of the squared deviations of these numbers from any other value, such as the median, mode, or any other arbitrary value.</p>
+<p>So now, let’s calculate the sum of the squared deviations using a variety of different values:</p>
+<div class="highlight">
+<pre class="r"><code># values to calculate the deviation from in our dataset
+dev_values &lt;- c(0, 5, 10, 12, 15, 18, 19, 19.92, 21, 22, 25, 28, 30, 35, 40)
+
+# generate empty list
+squared_residuals &lt;- rep(NA, length(dev_values))
+
+# calculate sum of squared deviations of the data from each value in dev_values
+for (i in 1:length(dev_values)) {
+  
+  squared_residuals[i] = sum((sample_data - dev_values[i])^2)
+  
+}
+
+squared_residuals </code></pre>
+<pre><code>##  [1] 400867.938 226653.590 102439.242  66753.502  28224.893   7696.285
+##  [7]   4853.415   4004.375   5167.676   8324.806  29796.197  69267.588
+## [13] 105581.849 231367.501 407153.153</code></pre>
+</div>
+<p>Next, let’s plot the resulting sum of squared deviations obtained using each value:</p>
+<div class="highlight">
+<pre class="r"><code>data.frame(dev_values = dev_values, squared_residuals = squared_residuals) %&gt;% 
+  ggplot(aes(dev_values, squared_residuals)) +
+  stat_smooth(method=&quot;lm&quot;, 
+              formula = y ~ poly(x, 2), 
+              se = FALSE,
+              colour = &quot;#FCC3B6&quot;,
+              linetype = &quot;dashed&quot;) +
+  geom_point(col = &quot;#C70039&quot;, size = 2.2, alpha = 0.7) +
+  labs(title = &quot;Sum of Squared Residuals (SSR) Loss Function&quot;,
+     x = &quot;Summary Value&quot;,
+     y = &quot;SSR&quot;) +
+  theme_minimal() +
+  theme(text = element_text(family = &quot;Lato&quot;),
+        plot.title = element_text(family = &quot;Lato Semibold&quot;, hjust = 0.5)) +
+  scale_y_continuous(labels = scales::comma)</code></pre>
+<p><img src="/posts/linear-regression-conditional-mean_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<p>Notice that the value that gives us the <em>smallest</em> sum of squared deviations, the lowest point on our curve, turns out to be 19.92, which is the mean of our dataset!</p>
+<p>Now, this isn’t just a fun feature of our sample dataset; given any set of numbers <span class="math inline">\(x_{1}...x_{n}\)</span>, the value that results in the smallest sum of squared deviations will <em>always</em> be the mean.</p>
+<p>And just in the same way, in linear regression, the predicted <span class="math inline">\(\hat{y}\)</span> values that minimise the sum of squared deviations will always be the conditional mean of <span class="math inline">\(y\)</span>.</p>
+<p>This simulation might help you see how minimising the sum of squared deviations is equivalent to using the mean, but it still doesn’t explain <em>why</em> it’s the case.</p>
+<p>For that, we need to look at the mathematical proof.</p>
+</div>
+<div id="mathematical-proof-background" class="section level2">
+<h2>Mathematical Proof: Background</h2>
+<p>When we calculate the sum of squared deviations between some sample data, and another value, what we’re really doing is passing the data through a function:</p>
+<p><span class="math display">\[f(y) = \sum_{i=1}^{n} (y_{i} - \hat{y})^2\]</span> And, in minimising the sum of squared deviations, our aim is to find the value for <span class="math inline">\(\hat{y}\)</span> that minimises the output of the function.</p>
+<p>Now, whenever we have a function whose output we want to minimise, we call the function a <strong>loss</strong> function, denoted as <span class="math inline">\(L(y)\)</span>.</p>
+<p>So, we can write our sum of squared deviations function as this:</p>
+<p><span class="math display">\[L(y) = \sum_{i=1}^{n} (y_{i} - \hat{y})^2\]</span></p>
+<p>Whenever we want to find the value of <span class="math inline">\(\hat{y}\)</span> that <strong>minimises</strong> a loss function, the way to solve this problem is by differentiation.</p>
+<p>Why? Well, let’s take a look back at our plot, where we calculated the sum of squared deviations for different values of <span class="math inline">\(\hat{y}\)</span>.</p>
+<p><img src="/posts/linear-regression-conditional-mean_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The value that we want to find out, the one that minimises the sum of squared deviations, is the one at the lowest point of the curve, where the gradient of the curve is equal to zero.</p>
+<p><img src="/posts/linear-regression-conditional-mean_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>And so, what we’re really doing here is asking, what value does my summary statistic take, at the point at which the <strong>gradient</strong> of the sum of squared deviations function is equal to zero?</p>
+<p>And finding gradients? Well, that’s a job for differentiation!</p>
+<p>So, we want to differentiate our loss function:</p>
+<p><span class="math display">\[\displaystyle \frac{d}{d\hat{y}} L(y) = \frac{dL}{d\hat{y}} \sum_{i=1}^{n} (y_{i} - \hat{y})^2\]</span> Differentiating the loss function gives us this:</p>
+<p><span class="math display">\[\displaystyle \frac{dL}{d\hat{y}} = \sum_{i=1}^{n} -2(y_{i} - \hat{y})\]</span> It can be a little tricky to understand what’s happened here, especially if you’re not using to differentiations involving <span class="math inline">\(\sum_{}\)</span> symbols and <span class="math inline">\(y_{i}\)</span> terms.</p>
+<p>To make it a bit clearer what I’ve just done, I’m going to momentarily pause on differentiating our actual loss function and instead detour toa simpler problem, that of differentiating the equation <span class="math inline">\(y = (1 - \hat{y}^{2})\)</span>:</p>
+<p><span class="math display">\[\displaystyle \frac{d}{d\hat{y}} L(y) = \frac{dL}{d\hat{y}}(1 - \hat{y})^2\]</span> Now, we can write this equation like so:</p>
+<p><span class="math display">\[\displaystyle \frac{d}{d\hat{y}} L(y) = \frac{dL}{d\hat{y}}(1 - \hat{y})(1 - \hat{y})\]</span></p>
+<p>Which, expanded out, gives us the following:</p>
+<p><span class="math display">\[\displaystyle \frac{d}{d\hat{y}} L(y) = \frac{dL}{d\hat{y}}(1 - 2\hat{y} + \hat{y}^{2})\]</span></p>
+<p>Finally, differentiating the above gives us this:</p>
+<p><span class="math display">\[\displaystyle \frac{dL}{d\hat{y}} = (2\hat{y} - 2)\]</span> which is also equivalent to this:</p>
+<p><span class="math display">\[\displaystyle \frac{dL}{d\hat{y}} = -2(1 - \hat{y})\]</span> And, the differentiation works pretty much the same way for our <em>actual</em> function, <span class="math inline">\(L(y) = \sum_{i=1}^{n} -2(y_{i} - \hat{y})\)</span>:</p>
+<p><span class="math display">\[\displaystyle \frac{dL}{d\hat{y}} = \sum_{i=1}^{n} -2(y_{i} - \hat{y})\]</span></p>
+<p>Now, we want to find the value of <span class="math inline">\(\hat{y}\)</span> when the gradient is zero, so let’s set this whole thing equal to zero:</p>
+<p><span class="math display">\[\displaystyle 0 = \sum_{i=1}^{n} -2(y_{i} - \hat{y})\]</span></p>
+<p>Divide both sides by -2 and we get this:</p>
+<p><span class="math display">\[\displaystyle 0 = \sum_{i=1}^{n} (y_{i} - \hat{y})\]</span></p>
+<p>Now, in the same way that <span class="math inline">\(3(5- 4)\)</span> is the same as <span class="math inline">\(3 * 5 - 3 * 4\)</span>, the sum of <span class="math inline">\(y_{i} - \hat{y}\)</span> is the same as saying the sum of the <span class="math inline">\(y_{i}\)</span> values, minus the sum of adding up <span class="math inline">\(\hat{y}\)</span> n times:</p>
+<p><span class="math display">\[\displaystyle 0 = \sum_{i=1}^{n} y_{i} - \sum_{i=1}^{n}\hat{y}\]</span></p>
+<p>Which we can also write as:</p>
+<p><span class="math display">\[\displaystyle 0 = \sum_{i=1}^{n} y_{i} - n\hat{y}\]</span></p>
+<p>We want to find the value of <span class="math inline">\(\hat{y}\)</span>, so let’s rearrange the equation a little:</p>
+<p><span class="math display">\[\displaystyle n\hat{y} = \sum_{i=1}^{n} y_{i}\]</span></p>
+<p>Finally, let’s divide both sides by n to find the value of <span class="math inline">\(\hat{y}\)</span>.</p>
+<p><span class="math display">\[\displaystyle \hat{y} = \frac{\sum_{i=1}^{n} y_{i}}{n}\]</span> And let’s look at what we’re left with here; <span class="math inline">\(\hat{y}\)</span> is equal to the sum of all the <span class="math inline">\(y_{1}...y_{n}\)</span> values in the data set, divided by <span class="math inline">\(n\)</span>, the number of values in the dataset… otherwise knows as, the mean of the <span class="math inline">\(y\)</span> values!</p>
+<p>(This if the proof for a single set of values rather than for regression, but the same principle applies in regression too.)</p>
+</div>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    
+  </section>
+
+      </div>
+
+      <script src="//yihui.org/js/math-code.js"></script>
+<script async
+src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<footer class="footer">
+  <section class="container">
+    
+    
+      
+        © 2019 - 2020
+      
+       Sophie Bennett 
+    
+    
+       · 
+      Powered by <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+    
+    
+       · 
+      [<a href="https://github.com/luizdepra/hugo-coder/tree/"></a>]
+    
+  </section>
+</footer>
+
+    </main>
+
+    
+
+  </body>
+
+</html>

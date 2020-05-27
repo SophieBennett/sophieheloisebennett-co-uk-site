@@ -81,5 +81,17 @@ TfL do provide an explanation for the discrepancy. In fact, they offer three:</d
 I’ve long suspected the Central line of being the biggest offender in this department, putting it near the bottom in my ranking of favourite tube lines.</description>
     </item>
     
+    <item>
+      <title>Why Linear Regression Estimates the Conditional Mean</title>
+      <link>/posts/linear-regression-conditional-mean/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/posts/linear-regression-conditional-mean/</guid>
+      <description>pre.r { color:#000;background-color:#ECECEC;}Because you can never know too much about linear regression.
+IntroductionIf you look at any textbook on linear regression, you will find that it says the following:
+“Linear regression estimates the conditional mean of the response variable.”
+This means that, for a given value of the predictor variable \(X\), linear regression will give you the mean value of the response variable \(Y\).</description>
+    </item>
+    
   </channel>
 </rss>
