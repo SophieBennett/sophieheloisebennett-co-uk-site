@@ -273,4 +273,4 @@ Finally, let's divide both sides by n to find the value of $\hat{y}$.
 $$\displaystyle \hat{y} = \frac{\sum_{i=1}^{n} y_{i}}{n}$$
 And let's look at what we're left with here; $\hat{y}$ is equal to the sum of all the $y_{1}...y_{n}$ values in the data set, divided by $n$, the number of values in the dataset... otherwise knows as, the mean of the $y$ values!
 
-(This if the proof for a single set of values rather than for regression, but the same principle applies in regression too.)
+Finally, I should point out that the proof I've gone through applies the sum of squares in the context of the mean a single set of values rather than in the context of minimising the sum of squares in linear regression. However, although the proof in the context of linear regression looks a bit more complicated, it works in exactly the same way.
