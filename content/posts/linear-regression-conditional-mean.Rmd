@@ -1,7 +1,7 @@
 ---
 title: "Why Linear Regression Estimates the Conditional Mean"
 author: "Sophie Bennett"
-date: "2020-27-11"
+date: "2020-05-27"
 output: html_document
 ---
 
