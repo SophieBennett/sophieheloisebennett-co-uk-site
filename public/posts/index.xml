@@ -6,10 +6,21 @@
     <description>Recent content in Posts on Sophie Bennett</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 27 May 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 14 Jun 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>When Is Simple Randomisation Enough?</title>
+      <link>/posts/simple-randomisation-imbalance/</link>
+      <pubDate>Sun, 14 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/posts/simple-randomisation-imbalance/</guid>
+      <description>pre.r { color:#000;background-color:#ECECEC;}Random allocation of participants to experimental groups is a gold-standard for experimentation. We use random allocation to help ensure that participant characteristics are distributed evently across the experimental groups. This helps to avoid systematic differences between experimental groups at the start of the experiment.
+But how should we randomly allocate our participants?
+The most straightforward implementation is simple randomisation, where each participant is randomly assigned in turn to one of the experimental groups.</description>
+    </item>
     
     <item>
       <title>Why Linear Regression Estimates the Conditional Mean</title>

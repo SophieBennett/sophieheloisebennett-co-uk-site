@@ -56,17 +56,15 @@ To find the intercept and slope coefficients of the line of best fit, linear reg
 
 $$\sum_{i=1}^{n} (y_{i} - \hat{y})^2$$
 
-And, it turns out that the line of best fit obtained with the least squares method *always* gives us the conditional mean of the response variable $Y$. 
+And, as it turns out, the values for the coefficients that we obtain by minimising the sum of squared deviations *always* result in a line of best fit that estimates the conditional mean of the response variable $Y$. 
 
-Now, this kinda answers our original question... but it also leads to a new question: why is minimising the sum of squared deviations equivalent to finding the conditional mean?
+Why? Well, the "simple" answer is that it can be proved mathematically. That's not a very satisfying or helpful answer though.
 
-The simple answer is that it can be proved mathematically that minimising the sum of squared deviations always gives you the conditional mean of the response variable. 
-
-Let's now look at how that works.
+However, one thing I *do* think is helpful for understanding the "why" is exploring the sum of squared deviations in a slightly simpler context.
 
 ## The Sum of Squared Deviations Method
 
-So far, we've talked about minimising the sum of squared deviations in the context of linear regression. However, we can also calculate a sum of squared deviations in other contexts too.
+So far, we've talked about minimising the sum of squared deviations in the context of linear regression. But, minimising the sum of squared deviations is a general method that we can also apply in other contexts.
 
 For instance, let's generate a dataset of 1000 numbers, with a mean of ~20 and a standard deviation of 2.
 
@@ -82,7 +80,7 @@ mean(sample_data)
 ```
 </div> 
 
-Now, we could calculate the sum of the squared deviations of each of these numbers from the mean...
+Now, we could calculate the sum of the squared deviations of each of these data points from the mean...
 
 <div class="highlight">
 ```{r}
@@ -92,9 +90,17 @@ sum((sample_data - mean(sample_data))^2)
 ```
 </div>
 
-...(which is exactly what we'd need to do to calculate the standard deviation of the set of numbers)
+...(which is exactly what we'd need to do to calculate the standard deviation of the data)
 
-And we could also calculate the sum of the squared deviations of these numbers from any other value, such as the median, mode, or any other arbitrary value.
+And we could also calculate the sum of the squared deviations of these data points from any other value, such as the median, mode, or any other arbitrary value. 
+
+For instance, here's the what we get if we calculate the sum of squared deviations of each data point from the median.
+
+<div class="highlight">
+```{r}
+sum((sample_data - median(sample_data))^2)
+```
+</div>
 
 So now, let's calculate the sum of the squared deviations using a variety of different values: 
 
@@ -148,13 +154,13 @@ Now, this isn't just a fun feature of our sample dataset; given any set of numbe
 
 And just in the same way, in linear regression, the predicted $\hat{y}$ values that minimise the sum of squared deviations will always be the conditional mean of $y$.
 
-This simulation might help you see how minimising the sum of squared deviations is equivalent to using the mean, but it still doesn't explain *why* it's the case.
+Now, this simulation might help you see how minimising the sum of squared deviations is equivalent to using the mean, but it still doesn't explain *why* it's the case.
 
-For that, we need to look at the mathematical proof.
+For that, we need to look at the mathematical proof. Here, again, we're going to focus on the slightly simpler use-case of minimising the sum of squares for a single set of values.
 
 ## Mathematical Proof: Background
 
-When we calculate the sum of squared deviations between some sample data, and another value, what we're really doing is passing the data through a function:
+When we calculate the sum of squared deviations between some sample data $y_{1}...y_{i}$, and another value $\hat{y}$, what we're really doing is passing the data through a function:
 
 $$f(y) = \sum_{i=1}^{n} (y_{i} - \hat{y})^2$$
 And, in minimising the sum of squared deviations, our aim is to find the value for $\hat{y}$ that minimises the output of the function.
@@ -221,34 +227,33 @@ And finding gradients? Well, that's a job for differentiation!
 
 So, we want to differentiate our loss function: 
 
-$$\displaystyle \frac{d}{d\hat{y}} L(y) = \frac{dL}{d\hat{y}} \sum_{i=1}^{n} (y_{i} - \hat{y})^2$$
+$$\displaystyle \frac{d}{d\hat{y}} \lbrace{L(y)}\rbrace = \frac{d}{d\hat{y}} \lbrace\sum_{i=1}^{n} (y_{i} - \hat{y})^2\rbrace$$
 Differentiating the loss function gives us this:
 
 $$\displaystyle \frac{dL}{d\hat{y}} = \sum_{i=1}^{n} -2(y_{i} - \hat{y})$$
-It can be a little tricky to understand what's happened here, especially if you're not using to differentiations involving $\sum_{}$ symbols and $y_{i}$ terms.
+It can be a little tricky to understand what's happened here, especially if you're not using to differentiations involving $\sum_{}$ symbols and $y_{i}$ terms. 
 
-To make it a bit clearer what I've just done, I'm going to momentarily pause on differentiating our actual loss function and instead detour toa simpler  problem, that of differentiating the equation $y = (1 - \hat{y}^{2})$: 
+To make it a bit clearer what I've just done, I'm going to momentarily pause on differentiating our actual loss function and instead detour to a simpler  problem, that of differentiating the equation $y = (1 - \hat{y})^{2}$. 
 
-$$\displaystyle \frac{d}{d\hat{y}} L(y) = \frac{dL}{d\hat{y}}(1 - \hat{y})^2$$
 Now, we can write this equation like so:
 
-$$\displaystyle \frac{d}{d\hat{y}} L(y) = \frac{dL}{d\hat{y}}(1 - \hat{y})(1 - \hat{y})$$
+$$\displaystyle y = (1 - \hat{y})(1 - \hat{y})$$
 
 Which, expanded out, gives us the following:
 
-$$\displaystyle \frac{d}{d\hat{y}} L(y) = \frac{dL}{d\hat{y}}(1 - 2\hat{y} + \hat{y}^{2})$$
+$$\displaystyle y = (1 - 2\hat{y} + \hat{y}^{2})$$
 
 Finally, differentiating the above gives us this:
 
-$$\displaystyle \frac{dL}{d\hat{y}} = (2\hat{y} - 2)$$
+$$\displaystyle \frac{dy}{d\hat{y}} = (2\hat{y} - 2)$$
 which is also equivalent to this:
 
-$$\displaystyle \frac{dL}{d\hat{y}} = -2(1 - \hat{y})$$
-And, the differentiation works pretty much the same way for our *actual* function, $L(y) = \sum_{i=1}^{n} -2(y_{i} - \hat{y})$:
+$$\displaystyle \frac{dy}{d\hat{y}} = -2(1 - \hat{y})$$
+And, the differentiation works pretty much the same way for our *actual* function, $L(y) = \sum_{i=1}^{n} (y_{i} - \hat{y})^2$:
 
 $$\displaystyle \frac{dL}{d\hat{y}} = \sum_{i=1}^{n} -2(y_{i} - \hat{y})$$
 
-Now, we want to find the value of $\hat{y}$ when the gradient is zero, so let's set this whole thing equal to zero:
+Now, as mentioned earlier, to minimise the loss function, we need to find the value of $\hat{y}$ when the gradient is zero, so let's set this whole thing equal to zero:
 
 $$\displaystyle 0 = \sum_{i=1}^{n} -2(y_{i} - \hat{y})$$
 
@@ -260,7 +265,7 @@ Now, in the same way that $3(5- 4)$ is the same as $3 * 5 - 3 * 4$, the sum of $
 
 $$\displaystyle 0 = \sum_{i=1}^{n} y_{i} - \sum_{i=1}^{n}\hat{y}$$
 
-Which we can also write as:
+And, the sum of adding up $\hat{y}$ n times can also be written like so:
 
 $$\displaystyle 0 = \sum_{i=1}^{n} y_{i} - n\hat{y}$$
 
@@ -273,4 +278,5 @@ Finally, let's divide both sides by n to find the value of $\hat{y}$.
 $$\displaystyle \hat{y} = \frac{\sum_{i=1}^{n} y_{i}}{n}$$
 And let's look at what we're left with here; $\hat{y}$ is equal to the sum of all the $y_{1}...y_{n}$ values in the data set, divided by $n$, the number of values in the dataset... otherwise knows as, the mean of the $y$ values!
 
-Finally, I should point out that the proof I've gone through applies the sum of squares in the context of the mean a single set of values rather than in the context of minimising the sum of squares in linear regression. However, although the proof in the context of linear regression looks a bit more complicated, it works in exactly the same way.
+And that's that!
+
