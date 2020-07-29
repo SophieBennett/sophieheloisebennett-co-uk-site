@@ -108,6 +108,13 @@ b, strong {
   border-radius: 1rem;
 }
 
+.highlightsql > div,
+.highlightsql > pre {
+  margin: 0 0 2rem;
+  padding: 1rem;
+  border-radius: 1rem;
+}
+
 pre {
   display: block;
   font-family: $code-font-family;

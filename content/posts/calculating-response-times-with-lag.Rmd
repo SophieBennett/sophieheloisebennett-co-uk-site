@@ -1,0 +1,362 @@
+---
+title: "Using Lag To Calculate Time Between Events in R and SQL"
+author: "Sophie Bennett"
+date: "29 Jul 2020"
+output: html_document
+---
+
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+
+  div.highlightsql pre { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, error = FALSE)
+```
+
+```{r, include=FALSE}
+
+library(tidyverse)
+library(kableExtra)
+
+messages <- read_csv("../../resources/response-times-with-lag/example-data.csv") %>% 
+  mutate(message_from = ifelse(message_from == "lead", "user", message_from))
+
+```
+
+Last week, amidst building some dashboards for the customer experience team at work, I came across an interesting problem, which led me to a cool function called `lag()` that I hadn't come across before. It struck me as a pretty common problem type for time-series data, so I thought I'd make a short blog post about it both for my own sake, and in case it can help anyone else out.
+
+# The Problem
+
+Our customer experience data comes from a messaging platform called Intercom. After some preliminary cleaning steps (damn you, nested JSON files!), my data looked broadly like this:
+
+<div class="highlight">
+```{r, echo = TRUE, include = TRUE}
+messages %>% 
+  head(8) %>% 
+  kable() 
+
+```
+</div>
+
+Each row in the dataframe is a message, with a date-time stamp. Messages are grouped into conversations, indentified by the convo_id column. Within conversations, messages can be sent either from users, or from an admin from the customer experience team. 
+
+Now, extracting the time taken for the admin to respond to the _first message_ in a conversation is fairly straightforward...
+
+<div class="highlight">
+```{r, echo = TRUE, include = TRUE}
+
+messages %>% 
+  group_by(convo_id, message_from) %>% 
+  summarise(first_message = min(created_at)) %>% 
+  pivot_wider(names_from = message_from, values_from = first_message) %>% 
+  mutate(first_response_time = difftime(admin, user, units = "hours")) %>% 
+  select(convo_id, user_first_message = user, admin_first_reply = admin, first_response_time) %>% 
+  head(8) %>% 
+  kable()
+
+```
+</div>
+
+And, since I actually working in SQL for my dashboards, here's what that would look like in SQL:
+
+<div class="highlightsql">
+```{}
+WITH admin_reply AS (SELECT convo_id,
+                            MIN(created_at) AS admin_first_reply
+                     FROM messages
+                     WHERE message_from = 'admin'
+                     GROUP BY convo_id)
+SELECT convo_id,
+       MIN(created_at) AS user_first_message,
+       admin_first_reply,
+       TIMESTAMP_DIFF(user_first_message, admin_first_reply, HOUR) AS response_time
+FROM messages
+LEFT JOIN admin_reply
+  ON messages.convo_id = admin_reply.convo_id
+WHERE message_from = 'user'
+GROUP BY convo_id
+
+```
+</div>
+
+But, what about if we want to extract the time taken for the admin to respond to _each subsequent user message_ in a conversation?
+
+To do this, we need a way to directly compare the date-time of each admin message to the date-time of the last user message in the conversation. 
+
+Note that users and admin may send multiple messages in a row so we can't even assume that we're always looking for the previous message in a conversation.
+
+So what can we do?
+
+Turns out what we need is a helpful function called `lag()`.
+
+`lag()` is a neat function that pulls out the previous value in a vector. It's accompanied by a sister function  `lead()` that pulls out the next value in a vector.
+
+By combining `lag()` with `mutate()` we can pull the previous entry from the created_at column into a new column to compare a message with its predecessor side by side. 
+
+Note that group by conversation id, because we only want to pull the date-time of the previous message if it belongs to the same conversation. We also need to use `lag()` on the message_from column to find out who sent the previous message in the conversation:
+
+<div class="highlight">
+```{r, echo = TRUE, include = TRUE}
+
+messages %>% 
+  group_by(convo_id) %>% 
+  mutate(last_message_from = lag(message_from),
+         last_message_at = lag(created_at)) %>% 
+  head(8) %>% 
+  kable()
+
+```
+</div>
+
+Now, we're only interested in the response time of an *admin* to a *user* message, so we need to filter for messages sent by admin, where the previous message was from a user. Once we've done this, we can calculate the time taken for the admin to respond:
+
+<div class="highlight">
+```{r, echo = TRUE, include = TRUE}
+
+messages %>% 
+  group_by(convo_id) %>% 
+  mutate(last_message_from = lag(message_from),
+         last_message_at = lag(created_at)) %>% 
+  filter(message_from == "admin" & last_message_from == "user") %>% 
+  mutate(first_response_time = difftime(created_at, last_message_at, units = "hours"))%>% 
+  head(8) %>% 
+  kable()
+```
+</div>
+
+I wasn't totally sure how this would translate into SQL, but thankfully, SQL also has a helpful LAG() function. So here's how my solution looks in SQL:
+
+<div class="highlightsql">
+```{}
+WITH lagged_messages AS (SELECT convo_id,
+                                message_from,
+                                created_at,
+                                LAG(user_type) OVER 
+                                  (PARTITION BY convo_id ORDER BY created_at) AS last_message_from,
+                                LAG(created_at) OVER 
+                                  (PARTITION BY convo_id ORDER BY created_at) AS last_message_at
+                         FROM messages)
+SELECT convo_id,
+       message_from,
+       created_at,
+       last_message_from,
+       last_message_at,
+       TIMESTAMP_DIFF(created_at, last_message_at, HOUR) AS response_time
+FROM lagged_messages
+WHERE message_from != last_message_from
+       
+```
+</div>
+
+For extra credit, here's a final fun problem: As mentioned earlier, sometimes, users and admin send multiple messages in a row.
+
+Currently, we have calculated the time between the user's last message and the admin's response.
+
+But is that really what we want?
+
+For instance, what if a user sends a message, waits around... and eventually, losing patience, hits the admin up with another message?
+
+In this case, taking the date-time of the user's last message before the admin response could lead to severely understimating the admin's response time.
+
+Instead, what we want is the date-time of the user's first message in the series preceding the admin response.
+
+To get this, all we need is, yet again, `lag()`! 
+
+First, we need to lag the message_from column, to find out who sent the previous message in a conversation chain:
+
+<div class="highlight">
+```{r, echo = TRUE, include = TRUE}
+
+messages %>% 
+  group_by(convo_id) %>% 
+  mutate(last_message_from = lag(message_from)) %>% 
+  head(8) %>% 
+  kable()
+
+```
+</div>
+
+At this point, we want to filter out any instances where the user or admin sends a second or third message in a row. We can do this by filtering out any rows where the message_from and last_message_from columns have the same value:
+
+<div class="highlight">
+```{r, echo = TRUE, include = TRUE}
+messages %>% 
+  group_by(convo_id) %>% 
+  mutate(last_message_from = lag(message_from),
+         last_message_from = ifelse(is.na(last_message_from), "none", last_message_from)) %>% 
+  filter(message_from != last_message_from) %>% 
+  head(8) %>% 
+  kable()
+
+```
+</div>
+
+At this point, we can use `lag()` again to get the date-time of the previous message in the conversation chain. The next steps are the same as in our first example; filter to keep only admin messages that were preceded by a user message, and caclulate response time:
+
+<div class="highlight">
+```{r, echo = TRUE, include = TRUE}
+messages %>% 
+  group_by(convo_id) %>% 
+  mutate(last_message_from = lag(message_from),
+         last_message_from = ifelse(is.na(last_message_from), "none", last_message_from)) %>% 
+  filter(message_from != last_message_from) %>% 
+  group_by(convo_id) %>% 
+  mutate(last_message_at = lag(created_at)) %>% 
+  filter(message_from == "admin" & last_message_from == "user") %>% 
+  mutate(first_response_time = difftime(created_at, last_message_at, units = "hours")) %>% 
+  head(8) %>% 
+  kable()
+```
+</div>
+
+Finally, this is my SQL solution to the same extended problem:
+
+<div class="highlightsql">
+```{}
+WITH lagged_users AS (SELECT convo_id,
+                             message_from,
+                             created_at,
+                             LAG(message_from) OVER 
+                              (PARTITION BY convo_id ORDER BY created_at) AS last_message_from
+                       FROM messages),
+     lag_times AS (SELECT convo_id,
+                          message_from,
+                          created_at,
+                          last_message_from,
+                          LAG(created_at) OVER 
+                            (PARTITION BY convo_id ORDER BY created_at) AS last_message_at
+                   FROM lagged_users
+                   WHERE message_from != last_message_from)
+SELECT convo_id,
+       message_from,
+       created_at,
+       last_message_from,
+       last_message_at,
+       TIMESTAMP_DIFF(created_at, last_message_at, HOUR) AS response_time
+FROM lag_times
+WHERE user_type = 'admin' AND prev_user_type = 'user'
+
+```
+</div>
+
+### Additional Code
+
+The Intercom data structure is a little more complex than the dataframe I used to go through the example. For anyone grappling with Intercom data, I've left the full code (in both R and SQL) that I used to extract response times below. 
+
+Full R code:
+
+<div class="highlight">
+```{r, eval = FALSE, echo = FALSE, include = TRUE}
+
+# cleaning ---------------------------------------------
+
+  # separate the first message from the subsequent messages
+first_message <- convos %>% 
+  select(convo_id, user_type, user_id, created_at) %>% 
+  group_by(convo_id) %>% 
+  summarise(cp_user_type = max(user_type),
+            cp_user_id = max(user_id),
+            cp_created_at = min(created_at))
+
+  # subsequent messages
+next_messages <- convos %>% 
+  select(convo_id, cp_user_type, cp_user_id, cp_created_at)
+
+  # re-join first and subsequent messages in a union join
+all_messages <- first_message %>% 
+  bind_rows(next_messages) %>% 
+  group_by(convo_id) %>% 
+  arrange(cp_created_at, .by_group = TRUE) %>% 
+  ungroup() %>% 
+  filter(cp_user_type != "bot") # filter out bot replies as we don't care about these
+
+  # lag the user type of previous message in conversation and remove everything after first of each response
+
+messages_first_response <- all_messages %>% 
+  group_by(convo_id) %>% 
+  mutate(last_messager_type = lag(cp_user_type),
+         last_messager_type = ifelse(is.na(last_messager_type), "none", last_messager_type)) %>% 
+  filter(cp_user_type != last_messager_type) 
+
+  # lag the created_at time of previous message in convo
+
+messages_first_response %>% 
+  group_by(convo_id) %>% 
+  mutate(last_message_at = lag(cp_created_at)) %>% 
+  filter(cp_user_type == "admin" & (last_messager_type == "user" | last_messager_type == "lead")) %>% 
+  group_by(convo_id) %>% 
+  mutate(response_time = difftime(cp_created_at, last_message_at, unit = "mins"))
+
+```
+</div>
+
+SQL full code:
+
+<div class="highlightsql" >
+```{}
+WITH first_message AS (SELECT conversations.id AS convo_id,
+                              MAX(user.id) AS user_id,
+                              MAX(user.type) AS user_type,
+                              MIN(conversations.created_at) AS created_at
+                       FROM `intercom.conversations` AS conversations
+                       GROUP BY convo_id),
+     next_messages AS (SELECT conversations.id AS convo_id,
+                              cp.value.author.id AS user_id,
+                              cp.value.author.type AS user_type,
+                              cp.value.created_at AS created_at
+                       FROM `intercom.conversations` AS conversations,
+                       UNNEST (conversation_parts) AS cp),
+     all_messages AS (SELECT * FROM first_message
+                      UNION ALL
+                      SELECT * FROM next_messages
+                      WHERE user_type <> "bot"
+                      ORDER BY convo_id, created_at),
+     lagged_users AS (SELECT convo_id,
+                             user_id,
+                             user_type,
+                             created_at,
+                             LAG(user_type) OVER (PARTITION BY convo_id ORDER BY created_at) AS prev_user_type
+                       FROM all_messages),
+     tidy_lagged_users AS (SELECT convo_id,
+                                  user_id,
+                                  (CASE WHEN user_type = 'lead' THEN 'user'
+                                        WHEN user_type IS NULL THEN 'none'
+                                        ELSE user_type
+                                   END) AS user_type,
+                                  created_at,
+                                  (CASE WHEN prev_user_type = 'lead' THEN 'user'
+                                        WHEN prev_user_type IS NULL THEN 'none'
+                                        ELSE prev_user_type
+                                   END) AS prev_user_type
+                          FROM lagged_users),
+     lag_times AS (SELECT convo_id,
+                          user_id,
+                          user_type,
+                          created_at,
+                          prev_user_type,
+                          LAG(created_at) OVER (PARTITION BY convo_id ORDER BY created_at) AS prev_message_time
+                   FROM tidy_lagged_users
+                   WHERE user_type != prev_user_type)
+SELECT convo_id,
+       user_id AS admin_id,
+       name AS admin_name,
+       user_type,
+       created_at,
+       prev_user_type,
+       prev_message_time,
+       TIMESTAMP_DIFF(created_at, prev_message_time, MINUTE) AS response_time
+FROM lag_times
+LEFT JOIN `intercom.admins` AS admins
+  ON lag_times.user_id = admins.id
+WHERE user_type = 'admin' AND prev_user_type = 'user'
+
+```
+</div>

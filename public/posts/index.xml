@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Sophie Bennett</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 14 Jun 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 29 Jul 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Using Lag To Calculate Time Between Events in R and SQL</title>
+      <link>/posts/calculating-response-times-with-lag/</link>
+      <pubDate>Wed, 29 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/posts/calculating-response-times-with-lag/</guid>
+      <description>pre.r { color:#000;background-color:#ECECEC;}div.highlightsql pre { color:#000;background-color:#ECECEC;}Last week, amidst building some dashboards for the customer experience team at work, I came across an interesting problem, which led me to a cool function called lag() that I hadn’t come across before. It struck me as a pretty common problem type for time-series data, so I thought I’d make a short blog post about it both for my own sake, and in case it can help anyone else out.</description>
+    </item>
     
     <item>
       <title>When Is Simple Randomisation Enough?</title>
