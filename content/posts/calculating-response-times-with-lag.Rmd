@@ -25,6 +25,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, error = FA
 
 library(tidyverse)
 library(kableExtra)
+library(flextable)
 
 messages <- read_csv("../../resources/response-times-with-lag/example-data.csv") %>% 
   mutate(message_from = ifelse(message_from == "lead", "user", message_from))
@@ -38,10 +39,11 @@ Last week, amidst building some dashboards for the customer experience team at w
 Our customer experience data comes from a messaging platform called Intercom. After some preliminary cleaning steps (damn you, nested JSON files!), my data looked broadly like this:
 
 <div class="highlight">
-```{r, echo = TRUE, include = TRUE}
+```{r, echo = TRUE, include = TRUE, out.width='80%'}
 messages %>% 
-  head(8) %>% 
-  kable() 
+  head(12) %>% 
+  regulartable() %>% 
+  autofit()
 
 ```
 </div>
@@ -57,10 +59,11 @@ messages %>%
   group_by(convo_id, message_from) %>% 
   summarise(first_message = min(created_at)) %>% 
   pivot_wider(names_from = message_from, values_from = first_message) %>% 
-  mutate(first_response_time = difftime(admin, user, units = "hours")) %>% 
+  mutate(first_response_time = round(difftime(admin, user, units = "mins"), 2)) %>% 
   select(convo_id, user_first_message = user, admin_first_reply = admin, first_response_time) %>% 
-  head(8) %>% 
-  kable()
+  head(12) %>% 
+  regulartable() %>% 
+  autofit()
 
 ```
 </div>
@@ -77,7 +80,7 @@ WITH admin_reply AS (SELECT convo_id,
 SELECT convo_id,
        MIN(created_at) AS user_first_message,
        admin_first_reply,
-       TIMESTAMP_DIFF(user_first_message, admin_first_reply, HOUR) AS response_time
+       TIMESTAMP_DIFF(user_first_message, admin_first_reply, MINUTE) AS response_time
 FROM messages
 LEFT JOIN admin_reply
   ON messages.convo_id = admin_reply.convo_id
@@ -110,8 +113,9 @@ messages %>%
   group_by(convo_id) %>% 
   mutate(last_message_from = lag(message_from),
          last_message_at = lag(created_at)) %>% 
-  head(8) %>% 
-  kable()
+  head(12) %>% 
+  regulartable() %>% 
+  autofit()
 
 ```
 </div>
@@ -126,9 +130,10 @@ messages %>%
   mutate(last_message_from = lag(message_from),
          last_message_at = lag(created_at)) %>% 
   filter(message_from == "admin" & last_message_from == "user") %>% 
-  mutate(first_response_time = difftime(created_at, last_message_at, units = "hours"))%>% 
-  head(8) %>% 
-  kable()
+  mutate(response_time = round(difftime(created_at, last_message_at, units = "mins"), 2)) %>% 
+  head(12) %>% 
+  regulartable() %>% 
+  autofit()
 ```
 </div>
 
@@ -149,7 +154,7 @@ SELECT convo_id,
        created_at,
        last_message_from,
        last_message_at,
-       TIMESTAMP_DIFF(created_at, last_message_at, HOUR) AS response_time
+       TIMESTAMP_DIFF(created_at, last_message_at, MINUTE) AS response_time
 FROM lagged_messages
 WHERE message_from != last_message_from
        
@@ -178,8 +183,9 @@ First, we need to lag the message_from column, to find out who sent the previous
 messages %>% 
   group_by(convo_id) %>% 
   mutate(last_message_from = lag(message_from)) %>% 
-  head(8) %>% 
-  kable()
+  head(12) %>% 
+  regulartable() %>% 
+  autofit()
 
 ```
 </div>
@@ -193,8 +199,9 @@ messages %>%
   mutate(last_message_from = lag(message_from),
          last_message_from = ifelse(is.na(last_message_from), "none", last_message_from)) %>% 
   filter(message_from != last_message_from) %>% 
-  head(8) %>% 
-  kable()
+  head(12) %>% 
+  regulartable() %>% 
+  autofit()
 
 ```
 </div>
@@ -211,10 +218,11 @@ messages %>%
   group_by(convo_id) %>% 
   mutate(last_message_at = lag(created_at)) %>% 
   filter(message_from == "admin" & last_message_from == "user") %>% 
-  mutate(first_response_time = difftime(created_at, last_message_at, units = "hours")) %>% 
-  head(8) %>% 
-  kable()
-```
+  mutate(response_time = round(difftime(created_at, last_message_at, units = "mins"), 2)) %>% 
+  head(12) %>% 
+  regulartable() %>% 
+  autofit()
+``` 
 </div>
 
 Finally, this is my SQL solution to the same extended problem:
@@ -240,7 +248,7 @@ SELECT convo_id,
        created_at,
        last_message_from,
        last_message_at,
-       TIMESTAMP_DIFF(created_at, last_message_at, HOUR) AS response_time
+       TIMESTAMP_DIFF(created_at, last_message_at, MINUTE) AS response_time
 FROM lag_times
 WHERE user_type = 'admin' AND prev_user_type = 'user'
 
@@ -249,56 +257,7 @@ WHERE user_type = 'admin' AND prev_user_type = 'user'
 
 ### Additional Code
 
-The Intercom data structure is a little more complex than the dataframe I used to go through the example. For anyone grappling with Intercom data, I've left the full code (in both R and SQL) that I used to extract response times below. 
-
-Full R code:
-
-<div class="highlight">
-```{r, eval = FALSE, echo = FALSE, include = TRUE}
-
-# cleaning ---------------------------------------------
-
-  # separate the first message from the subsequent messages
-first_message <- convos %>% 
-  select(convo_id, user_type, user_id, created_at) %>% 
-  group_by(convo_id) %>% 
-  summarise(cp_user_type = max(user_type),
-            cp_user_id = max(user_id),
-            cp_created_at = min(created_at))
-
-  # subsequent messages
-next_messages <- convos %>% 
-  select(convo_id, cp_user_type, cp_user_id, cp_created_at)
-
-  # re-join first and subsequent messages in a union join
-all_messages <- first_message %>% 
-  bind_rows(next_messages) %>% 
-  group_by(convo_id) %>% 
-  arrange(cp_created_at, .by_group = TRUE) %>% 
-  ungroup() %>% 
-  filter(cp_user_type != "bot") # filter out bot replies as we don't care about these
-
-  # lag the user type of previous message in conversation and remove everything after first of each response
-
-messages_first_response <- all_messages %>% 
-  group_by(convo_id) %>% 
-  mutate(last_messager_type = lag(cp_user_type),
-         last_messager_type = ifelse(is.na(last_messager_type), "none", last_messager_type)) %>% 
-  filter(cp_user_type != last_messager_type) 
-
-  # lag the created_at time of previous message in convo
-
-messages_first_response %>% 
-  group_by(convo_id) %>% 
-  mutate(last_message_at = lag(cp_created_at)) %>% 
-  filter(cp_user_type == "admin" & (last_messager_type == "user" | last_messager_type == "lead")) %>% 
-  group_by(convo_id) %>% 
-  mutate(response_time = difftime(cp_created_at, last_message_at, unit = "mins"))
-
-```
-</div>
-
-SQL full code:
+The Intercom data structure is a little more complex than the dataframe I used to go through the example. For anyone grappling with Intercom data, I've left the full SQL code that I used to extract response times below. 
 
 <div class="highlightsql" >
 ```{}
