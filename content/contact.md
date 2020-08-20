@@ -3,4 +3,4 @@ slug: contact
 title: Contact
 ---
 
-Follow me, @SophieHeloise.
+On twitter, I'm @SophieHeloise - feel free to message, tweet and/or follow me!
