@@ -178,6 +178,7 @@ The task Ofqual had ahead of them was clearly an impossibly difficult task with 
 # Final Thoughts 
 
 What I've gone through above isn't a comprehensive summary of the *entire* report, but I do have to stop somewhere(!) and I think I've covered a fair number of the problems with the algorithm. A number of other people have written about this topic too, which I'd encourage people to read through:
+
 - https://constantinides.net/2020/08/15/a-levels-and-gcses-in-2020/
 - https://ffteducationdatalab.org.uk/2020/08/a-level-results-2020-how-have-grades-been-calculated/
 - http://thaines.com/post/alevels2020 
