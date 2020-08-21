@@ -161,7 +161,7 @@ Finally, this validation really *isn't* a validation of the entire algorithm. Th
 
 # General Mistakes
 
-Above and beyond the details of Ofqual's approach detailed in the technical report, there are some more general mistakes that I think they made in desinging the process:
+Above and beyond the details of Ofqual's approach detailed in the technical report, there are some more general mistakes that I think they made in designing the process:
 
 1. Lack of input from statistical and social science experts. 
 
