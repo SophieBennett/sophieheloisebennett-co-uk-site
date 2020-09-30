@@ -1,0 +1,349 @@
+---
+title: "Scraping Government Search Registers (with BeautifulSoup)"
+author: "Sophie Bennett"
+date: "30 Sep 2020"
+output: html_document
+---
+
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+
+  div.highlightsql pre { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, error = FALSE)
+```
+
+Sadly no wacky data analysis projects to report this month (it's been busy), so instead I'm going to go through a little web scraping project I did recently for my workplace. (In Python this time, largely for the purposes of my own learning and development).
+
+The mission: From [this search register](https://get-information-schools.service.gov.uk/Establishments/Search?tok=8TjW1JHQ), generate a list of schools plus the schools' website domain name.
+
+## Step 1: Scrape the school website domain name for a single school 
+
+(e.g. [this school](https://get-information-schools.service.gov.uk/Establishments/Establishment/Details/137377?searchQueryString=tok%3D8TjW1JHQ))
+
+First, grab the html of the entire page:
+
+<div class="highlightsql">
+```{}
+url = "https://get-information-schools.service.gov.uk/Establishments/Establishment/Details/137377?searchQueryString=tok%3D8TjW1JHQ"
+
+response = requests.get(url)
+html = BeautifulSoup(response.content, 'html.parser')
+
+```
+</div>
+
+Now, we need a way to pull out the school website from the html without extracting all the other elements on the page. 
+
+An inspection of the html on the page reveals that the web domain is located in a division with an id = "details-summary". This division contains a list of terms, tagged with the `<dt>` tag. Each list term is proceeded by a value, tagged with the `<dd>` tag. 
+
+For instance, the school's website has a `<dt>` element that says 'Website:' and a `<dd>` element that has the school website url in it, as an 'href' attribute:
+
+![](/posts/school-web-scraping_files/example-html-school-website.PNG)
+
+Now, I could extract every element with a `<dd>` tag, but then I'd end up with much more than I want, and I'd still need to come up with a reliable way to identify the element corresponding to the school website.
+
+However, we _can_ identify the correct element by using the corresponding `<dt>` element (since we know that the school website is always preceded by a `<dt>` element whose content will say 'Website:'. 
+
+This means that we can grab the school website with the following method:
+
+1. Find all the hmtl located in the `<div>` element with an id = "details-summary"
+2. Find all the `<dt>` elements in this div 
+3. If the contents of the `<dt>` element says "Website:", find the subsequent `<dd>` element, using BeautifulSoup's find_next_sibling() function
+4. Get the href for this element.
+
+<div class="highlightsql">
+```{}
+html_summary = html.find(id = "details-summary")
+
+cols = html_summary.find_all("dt")
+
+for col in cols:
+    if col.get_text() == "Website:":
+        tag = col.find_next_sibling("dd")
+        website = tag.find("a").get('href')
+    
+```
+</div>
+
+Finally, since we know we're going to want to do this for _all_ of the schools in the search register, let's convert these steps into some functions to use later:
+
+<div class="highlightsql">
+```{}
+def get_school_details(url):
+
+    response = requests.get(url)
+    html = BeautifulSoup(response.content, 'html.parser')
+    html_summary = html.find(id = "details-summary")
+
+    return html_summary
+
+def find_website(html):
+
+    if not html:
+        return None
+
+    cols = html.find_all("dt")
+
+    for col in cols:
+        if col.get_text() == "Website:":
+            tag = col.find_next_sibling("dd")
+            
+            try: 
+                website = tag.find("a").get('href')
+            except AttributeError:
+                website = None 
+            return website
+```
+</div>
+
+## Step 2: Scrape the first main search page to get a list of links to each individual school page
+
+So, we've scraped the school website domain off one page. But, we need to do that for all ~3700 schools, meaning that we need the url of the pages on the government website for each of these schools.
+
+Now, the main search page is actually split into 75 pages, and there are only 50 schools on the first page of the search. For now, let's just focus on getting the links to the pages for the first 50 schools. 
+
+We start by inspecting the html of the main search page, to see where the school page links are stored.
+
+This time, our job is a bit easier, as it turns out that the links to the school pages are stored in `<a>` elements with a class = "bold-small". The school name is located in the content of the element, and the school page link in the 'href'.
+
+This means that we can directly grab the href and contents for each of the elements in a for loop. I'm choosing to store the school name and page for each school in a separate dictionary. I then append each school dictionary into a list.
+
+<div class="highlightsql">
+```{}
+
+resp = requests.get(index_page)
+html = BeautifulSoup(resp.content, 'html.parser')
+    
+school_links = html.find_all('a', class_="bold-small")
+
+output = []
+
+for school in school_links:
+    details = {}
+
+    name = school.contents[0]
+    page_link = school.get('href')
+
+    details["name"] = name
+    details["link"] = page_link
+
+    output.append(details)
+        output.append(details)
+```
+</div>
+
+Finally, again, since we're going to have to eventually run this on 75 pages worth of search, let's turn the steps into a function:
+
+<div class="highlightsql">
+```{}
+
+def get_school_pages(index_page):
+
+    resp = requests.get(index_page)
+    html = BeautifulSoup(resp.content, 'html.parser')
+    school_links = html.find_all('a', class_="bold-small")
+
+    output = []
+
+    for school in school_links:
+        details = {}
+
+        name = school.contents[0]
+        page_link = school.get('href')
+
+        details["name"] = name
+        details["link"] = f"{ROOT}{page_link}"
+
+        output.append(details)
+    
+    return output
+
+```
+</div>
+
+## Step 3: Get a list of URLs for all 75 search pages
+
+We now have:
+
+* a function to get the links to individual school pages from a main search page
+* some functions to get the school website from the individual school page 
+
+But, we don't just want to do this for one search page, we want to be able to run our functions on all 75 search pages.
+This means that instead of just one url corresponding to the first search page, we need the urls of all 75 search pages.
+
+Examining the urls of the search pages gives us clues as to how we could do this:
+
+* page 1: https://get-information-schools.service.gov.uk/Establishments/Search?tok=8TjW1JHQ&startIndex=0&Count=3700
+* page 2: https://get-information-schools.service.gov.uk/Establishments/Search?tok=8TjW1JHQ&startIndex=50&Count=3700
+* page 3: https://get-information-schools.service.gov.uk/Establishments/Search?tok=8TjW1JHQ&startIndex=100&Count=3700
+* page 4: https://get-information-schools.service.gov.uk/Establishments/Search?tok=8TjW1JHQ&startIndex=150&Count=3700
+
+The only difference between each of these page urls is the startIndex, which increments by 50.
+
+So, no scraping required here - from a template url in the form 'https://get-information-schools.service.gov.uk/Establishments/Search?tok=8TjW1JHQ&startIndex={{something}}&Count=3700' we can generate 75 urls with a startIndex beginning at 0 and incrementing by 50 until we reach the last page.
+
+<div class="highlightsql">
+```{}
+ROOT = "https://get-information-schools.service.gov.uk"
+TEMPLATE = f"{ROOT}/Establishments/Search?tok=8TjW1JHQ&startIndex={{startIndex}}&Count=3702"
+
+# get urls for all 75 search pages
+def get_index_pages():
+    return [TEMPLATE.format(startIndex=startIndex) for startIndex in range(0, 3750, 50)]
+
+pages = get_index_pages()
+```
+</div>
+
+## Step 5: Scrape all 75 search pages to get a list of links to all of the government school pages
+
+We now have a list of search page urls. Next, we need to scrape each page to get the links to all ~3700 school pages. Thankfully, we've already written a function to help us to this, which we just need to run on each search page in a for loop.
+
+<div class="highlightsql">
+```{}
+schools = []
+for index_page in pages:
+    schools = schools + get_school_pages(index_page)
+    print(f"trying {index_page}")
+    time.sleep(1)
+
+```
+</div>
+
+(The time.sleep() function here tells python to wait 1 second between requests so as not to overload the web server.)
+
+With this for loop, we now have a list containing the links to all ~3700 school pages. This leaves us with one final step...
+
+## Step 5: Putting it all together
+
+Our last step is to scrape the school website domain off each individual school page. Again, we've already written functions to help us do this, so it's simply a case of running the functions on all of the school pages.
+
+<div class="highlightsql">
+```{}
+
+for school in schools:
+    print(f"trying school: {school['name']}")
+    url = school["link"]
+    
+    details = get_school_details(url)
+    website = find_website(details)
+
+    school["website"] = website
+    
+    time.sleep(1)
+
+```
+</div>
+
+And with that, we're done! We now have a list containing, for each school:
+* the school's name
+* a link to the government page describing the school
+* the website domain of the school
+
+
+Full code for the web scraping below:
+
+<div class="highlightsql">
+```{}
+
+from bs4 import BeautifulSoup 
+import requests 
+import pandas as pd
+import time
+
+ROOT = "https://get-information-schools.service.gov.uk"
+TEMPLATE = f"{ROOT}/Establishments/Search?tok=8TjW1JHQ&startIndex={{startIndex}}&Count=3702"
+
+# get urls for all 75 search pages
+def get_index_pages():
+    return [TEMPLATE.format(startIndex=startIndex) for startIndex in range(0, 3750, 50)]
+
+pages = get_index_pages()
+
+
+# retrieve url of each school page from search pages
+def get_school_pages(index_page):
+
+    resp = requests.get(index_page)
+    html = BeautifulSoup(resp.content, 'html.parser')
+    school_links = html.find_all('a', class_="bold-small")
+
+    output = []
+
+    for school in school_links:
+        details = {}
+
+        name = school.contents[0]
+        page_link = school.get('href')
+
+        details["name"] = name
+        details["link"] = f"{ROOT}{page_link}"
+
+        output.append(details)
+    
+    return output
+
+schools = []
+for index_page in pages:
+    schools = schools + get_school_pages(index_page)
+    print(f"trying {index_page}")
+    time.sleep(1)
+    
+
+# get school's website domain
+def get_school_details(url):
+
+    response = requests.get(url)
+    html = BeautifulSoup(response.content, 'html.parser')
+    html_summary = html.find(id = "details-summary")
+
+    return html_summary
+
+def find_website(html):
+
+    if not html:
+        return None
+
+    cols = html.find_all("dt")
+
+    for col in cols:
+        if col.get_text() == "Website:":
+            tag = col.find_next_sibling("dd")
+            # TODO: Change me
+            try: 
+                website = tag.find("a").get('href')
+            except AttributeError:
+                website = None 
+            return website
+
+for school in schools:
+    print(f"trying school: {school['name']}")
+    url = school["link"]
+    
+    details = get_school_details(url)
+    website = find_website(details)
+
+    school["website"] = website
+    
+    time.sleep(1)
+
+
+# save as csv
+schools_df = pd.DataFrame(schools)
+
+schools_df.to_csv("school-page-links.csv")
+
+
+```
+</div>
+
+
