@@ -17,7 +17,7 @@
       <pubDate>Tue, 20 Apr 2021 00:00:00 +0000</pubDate>
       
       <guid>/posts/common-data-cleaning-mistakes/</guid>
-      <description>pre.r { color:#000;background-color:#ECECEC;}Recently, I’ve been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What’s more, data mistakes are often be semi-invisible; they don’t result in a website failing to load, or code not running. Instead, we obtain some data, an analysis or model is produced - it’s just the wrong data, an inaccurate model, or the wrong conclusion.</description>
+      <description>pre.r { color:#000;background-color:#ECECEC;}div.highlightsql pre { color:#000;background-color:#ECECEC;}Recently, I’ve been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What’s more, data mistakes are often be semi-invisible; they don’t result in a website failing to load, or code not running. Instead, we obtain some data, an analysis or model is produced - it’s just the wrong data, an inaccurate model, or the wrong conclusion.</description>
     </item>
     
     <item>

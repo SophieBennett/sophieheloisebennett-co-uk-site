@@ -11,10 +11,10 @@
 
     <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Common Data Cleaning Mistakes... and How to Prevent Them"/>
-<meta name="twitter:description" content="pre.r { color:#000;background-color:#ECECEC;}Recently, I’ve been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What’s more, data mistakes are often be semi-invisible; they don’t result in a website failing to load, or code not running. Instead, we obtain some data, an analysis or model is produced - it’s just the wrong data, an inaccurate model, or the wrong conclusion."/>
+<meta name="twitter:description" content="pre.r { color:#000;background-color:#ECECEC;}div.highlightsql pre { color:#000;background-color:#ECECEC;}Recently, I’ve been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What’s more, data mistakes are often be semi-invisible; they don’t result in a website failing to load, or code not running. Instead, we obtain some data, an analysis or model is produced - it’s just the wrong data, an inaccurate model, or the wrong conclusion."/>
 
     <meta property="og:title" content="Common Data Cleaning Mistakes... and How to Prevent Them" />
-<meta property="og:description" content="pre.r { color:#000;background-color:#ECECEC;}Recently, I’ve been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What’s more, data mistakes are often be semi-invisible; they don’t result in a website failing to load, or code not running. Instead, we obtain some data, an analysis or model is produced - it’s just the wrong data, an inaccurate model, or the wrong conclusion." />
+<meta property="og:description" content="pre.r { color:#000;background-color:#ECECEC;}div.highlightsql pre { color:#000;background-color:#ECECEC;}Recently, I’ve been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What’s more, data mistakes are often be semi-invisible; they don’t result in a website failing to load, or code not running. Instead, we obtain some data, an analysis or model is produced - it’s just the wrong data, an inaccurate model, or the wrong conclusion." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="/posts/common-data-cleaning-mistakes/" />
 <meta property="article:published_time" content="2021-04-20T00:00:00+00:00" />
@@ -130,6 +130,11 @@
 
 <style>
   pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+  
+  div.highlightsql pre { 
     color:#000;
     background-color:#ECECEC;
   }
@@ -400,9 +405,8 @@ see_if(are_equal(nrow(filtered_users), nrow(users) - n_premium_plus))</code></pr
 <h2>Mistake 4: The SQL Filter That Doesn’t Do What You Think</h2>
 <p>This is a different class of filtering error that I’ve come across when analysts work in SQL.</p>
 <p>For instance, suppose I write the following SQL statement to re-categorise plans, and filter out trial plans:</p>
-<div class="highlight">
-<pre><code>
-&#39;SELECT user,
+<div class="highlightsql">
+<pre><code>&#39;SELECT user,
         signup_date,
         age,
         CASE

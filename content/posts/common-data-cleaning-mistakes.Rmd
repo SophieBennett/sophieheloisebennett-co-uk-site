@@ -10,6 +10,11 @@ output: html_document
     color:#000;
     background-color:#ECECEC;
   }
+  
+  div.highlightsql pre { 
+    color:#000;
+    background-color:#ECECEC;
+  }
 </style>
 
 ```{r setup, include=FALSE}
@@ -293,9 +298,8 @@ This is a different class of filtering error that I’ve come across when analys
 
 For instance, suppose I write the following SQL statement to re-categorise plans, and filter out trial plans:
 
-<div class="highlight">
+<div class="highlightsql">
 ```{}
-
 'SELECT user,
         signup_date,
         age,
