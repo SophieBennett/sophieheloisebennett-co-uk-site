@@ -1,0 +1,343 @@
+---
+title: "Common Data Cleaning Mistakes... and How to Prevent Them"
+author: "Sophie Bennett"
+date: "20 Apr 2021"
+output: html_document
+---
+
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, error = FALSE)
+```
+
+```{r, include=FALSE}
+library(tidyverse)
+library(assertthat)
+
+users <- read_csv("../../resources/data-cleaning-mistakes/example-data-1.csv") %>% 
+  rename(user_id = "user")
+
+payments <- read_csv("../../resources/data-cleaning-mistakes/example-data-2.csv") %>% 
+  rename(user_id = "user") %>% 
+  select(-payment_id)
+
+```
+
+Recently, I've been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What's more, data mistakes are often be semi-invisible; they don’t result in a website failing to load, or code not running. Instead, we obtain some data, an analysis or model is produced - it’s just the _wrong_ data, an inaccurate model, or the _wrong_ conclusion.
+
+So how do we identify and prevent errors before they cost us? Compulsory code review can certainly help us to avoid mistakes. But relying solely on code review to detect errors is a risky strategy that places heavy burden on the reviewer. 
+
+That's why, as much as possible, it's good to write tests and assertations that systematically check for common data mistakes. 
+
+Some things are undoubtedly easier to test than others; it's easier to check that some analysis code does what you think it does than to test that you've chosen the correct statistical tests (although you could write tests to check that the assumptions of a statistical test are met). 
+
+On the other hand, data cleaning is a part of the analysis process that I believe lends itself more naturally to tests.
+
+It’s not easy to anticipate every potential source of error. However, there are at least some mistakes that I believe crop up commonly, that I’ve _definitely_ made myself, and that I’ve watched many others make:
+
+* Row Explosion During Joins
+* Accidental Filtering of Null/NAs
+* Case-When Categorisation Mistakes
+* WHERE Statements in SQL That Aren't What They Seem
+
+None of these mistakes are unavoidable - so as well as explain the mistake with a worked example, I’m going to go through the tests I use to identify these mistakes in my own code. 
+
+To explain what I mean by each of these mistakes, and show how they can be prevented, I'm going to use two small, fake data sets. First, the `users` table, a table of imaginary users who signed up to an imaginary website on either a trial or paying plan.
+
+<div class="highlight">
+```{r}
+users %>% 
+  head(5)
+```
+</div>
+
+Second, a table of purchases made by our imaginary users, in a table called `payments`.
+
+<div class="highlight">
+```{r}
+payments %>% 
+  head(5)
+```
+</div>
+
+Without further avail, let's look at these mistakes.
+
+## Mistake 1: Row Explosion During Joins
+
+### Example Problem
+
+Suppose I want to join the `purchases` table to the `users` table, to find out which users have made purchases, and how much each user has spent.
+
+The `user_id` column exists in both tables, so I use this column to perform a left join of the purchases onto the users table:
+
+<div class="highlight">
+```{r}
+users %>% 
+  left_join(payments, by = "user_id") %>% 
+  head(5)
+```
+</div>
+
+At first glance, everything looks fine. But, if we compare the row count before and after the join, we can see that the row count has actually increased after the left join:
+
+<div class="highlight">
+```{r}
+# row count before join
+users %>% 
+  nrow()
+
+```
+</div>
+
+<div class="highlight">
+```{r}
+# row count after join
+users %>% 
+  left_join(payments, by = "user_id") %>% 
+  nrow()
+```
+</div>
+
+So, what's happened?
+
+At first glance, the `user_id` field in `purchases` may appear to be a primary key. But actually, a user can make more than one payment, and so appear multiple times in the table.
+
+When we left join the purchases table to the users table, the entries for these users are duplicated in `users` to account for the multiple payments:
+
+<div class="highlight">
+```{r}
+users %>% 
+  filter(user_id %in% c(4, 10)) %>% 
+  left_join(payments, by = "user_id") %>% 
+  head(5)
+```
+</div>
+
+Usually this mistake is made because there is a column that _looks_ like it should be a primary key, but that turns out not to be. Admittedly, in the example I've given, assuming that `user_id` is a primary key in the purchases table might seem oviously misguided. However, I promise you, there will be situations less clear-cut - and I have definitely seen this mistake made many times. 
+
+### Error Detection
+
+There are two tests that can be useful to detect and avoid this mistake. 
+
+One check that we can do is to look at the row count before and after joining the tables, to ensure that the row count has changed (or not changed) as expected.
+
+For instance, in my example, I’m expecting the row count to remain the same after joining the payments table. I'd say this is a common situation when performing a left join.
+
+This means that I could identify my mistake by checking that the number of rows in the `users` table is the same before and after the join.
+
+Although I could write a function in my code to test that the number of rows hasn't changed, there are already some great packages that enable easy testing. Here, I'm using `assertthat`, but you could also look at either `assertr` or `testthat`. Likewise, there are similar libraries in Python (e.g. `pytest`).
+
+Note that to enable my code to run, I'm using the `see_if()` function from the package, which returns a logical value, with the error message as an attribute, but doesn't stop my code from running.
+
+In actual production code though, use `assert_that()`, which will return an error and stop the code from running any further.
+
+<div class="highlight">
+```{r}
+
+user_summary <- users %>% 
+  left_join(payments, by = "user_id")
+
+see_if(are_equal(nrow(users), nrow(user_summary)))
+
+# in production code, replace see_if() with assert_that():
+# assert_that(nrow(users) == nrow(user_summary))
+
+```
+</div>
+
+(In my code, `assertthat` is simply testing the condition that I've stipulated, to help me detect my mistake.)
+
+Another check that's useful in this context is to test whether the primary key is still unique after performing the join.
+
+For instance, in my example, the `user_id` columns contains unique values - and a test would tell me that this is not the case after performing my join. 
+
+<div class="highlight">
+```{r}
+see_if(are_equal(length(user_summary$user_id), length(unique(user_summary$user_id))))
+```
+</div>
+
+## Mistake 2: Accidental Filtering of Nulls/NAs
+
+### Example Problem
+
+Suppose I want to filter out all of the users on a 'Premium Plus' plan from my `users` table. All I need to do is to filter for any plan that's not equal to 'Premium Plus', right?
+
+<div class="highlight">
+```{r}
+users %>% 
+  filter(plan != "Premium Plus")
+
+```
+</div>
+
+Looking at this table, I have indeed filtered out the Premium Plus users...
+
+But the table only had 1 Premium Plus user. And when I count the number of rows left in my table, I've gone from 20 rows to 17 rows! 
+
+<div class="highlight">
+```{r}
+users %>% 
+  filter(plan != "Premium Plus") %>% 
+  nrow()
+```
+</div>
+
+As it turns out, some users in the table have a NULL entry for plan. And, while filtering out the Premium Plus users, I've filtered out all of these users too!
+
+This happens because R doesn’t know what to do with these cases. If the value is NULL then it’s impossible to evaluate the truthiness of the statement. So, it just gets removed. (FYI this isn't just an 'R' thing, this is usual behaviour for any coding language). 
+
+You might say, 'but this shouldn't happen! The `plan` column should never be NULL!'. 
+
+Sure, it probably shouldn't be. But it is. Welcome to data in the real world! 
+
+### Error Detection
+
+Here again, we can test that this error has not occurred by checking the row count before and after the filter. 
+
+First, we need to find out how many rows match the condition we want to filter out (in this case, the number of users with a Premium Plus plan).
+
+<div class="highlight">
+```{r}
+n_premium_plus <- users %>% 
+  filter(plan == "Premium Plus") %>% 
+  nrow()
+```
+</div>
+
+We then need to check that we've only removed this number of rows after filtering. 
+
+<div class="highlight">
+```{r}
+
+filtered_users <- users %>% 
+  filter(plan != "Premium Plus")
+
+see_if(are_equal(nrow(filtered_users), nrow(users) - n_premium_plus))
+
+```
+</div>
+
+And, that's not it! We can also write tests to ensure that there are no null values in the `plan` to begin with:
+
+<div class="highlight">
+```{r}
+
+see_if(noNA(users$plan))
+
+```
+</div>
+
+(The code above counts the number of NULLs in the column to ensure that this count is equal to zero).
+
+## Mistake 3: Illogical Cases
+
+### Example Problem
+
+This problem occurs when you write a series of CASE… WHEN statements to categorise column entries, but the order of your CASE statements means that one of your CASE conditions is never met.
+
+For instance, in my `users` table there are a number of different plans, some of which seem like variations on the same plan (for e.g. 'Premium' and 'Premium (Weekly)'. I want to re-categorise the plans into a smaller set of categories, so I write a case when statement:
+
+<div class="highlight">
+```{r}
+users %>% 
+  mutate(plan_type = case_when(
+    str_detect(plan, "Basic") ~ "Basic",
+    str_detect(plan, "Premium") ~ "Premium",
+    str_detect(plan, "Basic Plus") ~ "Basic Plus",
+    str_detect(plan, "Premium Plus") ~ "Premium Plus",
+    str_detect(plan, "Trial") | is.na(plan) ~ "Trial"
+  ))
+```
+</div>
+
+This may not look immediately problematic, but let's see what happens when I count up the number of rows in each plan_type:
+
+<div class="highlight">
+```{r}
+users %>% 
+  mutate(plan_type = case_when(
+    str_detect(plan, "Basic") ~ "Basic",
+    str_detect(plan, "Premium") ~ "Premium",
+    str_detect(plan, "Basic Plus") ~ "Basic Plus",
+    str_detect(plan, "Premium Plus") ~ "Premium Plus",
+    str_detect(plan, "Trial") | is.na(plan) ~ "Trial"
+  )) %>% 
+  count(plan_type)
+```
+</div>
+
+We can now see that there are no 'Basic Plus' and 'Premium Plus' plans - all of those plans have been lumped into the  'Basic' or 'Premium' categories.
+
+The 'Basic Plus' plans all meet the first case condition since they all contain the word 'Basic'. So, the case/when evaluates as TRUE, and these plans are all binned into the 'Basic' plan type.
+
+In a case-when statement, as soon as a condition is met for a given row, the row is transformed accordingly and we move onto the next row. 
+
+### Error Detection
+
+A good starting point to identify this type of categorisation error is simply to count up the rows per category after the case-when is applied. If any categories are unexpectedly returning zero, this should be an indication that the categorisation has not been done as expected.
+
+We could test this by asserting that none of the category counts are equal to zero. 
+
+However, I appreciate that this isn’t a failproof check; the count for a category could be greater than zero whilst still being incorrect, and sometimes we may have categories that should have a count of zero. 
+
+## Mistake 4: The SQL Filter That Doesn't Do What You Think
+
+This is a different class of filtering error that I’ve come across when analysts work in SQL.
+
+For instance, suppose I write the following SQL statement to re-categorise plans, and filter out trial plans:
+
+<div class="highlight">
+```{}
+
+'SELECT user,
+        signup_date,
+        age,
+        CASE
+          WHEN plan = "Basic Plus" THEN "Basic Plus"
+          WHEN plan = "Premium Plus" THEN "Premium Plus"
+          WHEN plan LIKE "%Basic%" THEN "Basic"
+          WHEN plan LIKE "%Premium%" THEN "Premium"
+          WHEN plan IS NULL OR plan LIKE "%Trial%" THEN "Trial"
+          ELSE "Other"
+        END AS plan
+  FROM users
+  WHERE plan NOT = "Trial"'
+```
+</div>
+
+At first glance, this may not look problematic.
+
+However, in SQL the WHERE command is processed before the SELECT command.
+
+What this means is that I am filtering out plans called ‘Trial’ before re-categorising empty or null plans to ‘Trial’. As such, these plans are erroneously returned in my query.
+
+### Error Detection
+
+Sadly, there’s no handy assertthat package for SQL. To prevent this error altogether in SQL code, it’s useful to avoid naming new transformed or re-categorised columns with the same name as the original column. (For e.g. if you’re not feeling particularly inventive, call the new `plans` column something like `recategorised_plans`). Giving the transformed column a different name will make it more immediately obvious that the WHERE command occurs before SELECT, as your SQL server will return an error..
+
+Sometimes - and particularly if you're writing ETL/ELT code, you may still want to implement tests as a more foolproof way of avoiding this error. In this case, I suggest using dbt (data build tool), an analytics engineering tool which, among many other great features, enables you to write tests on your SQL code. 
+
+For instance, in this example, I could include tests with dbt to ensure that there are no null or empty plans in the data returned by the query.
+
+## Other Checks and Assertations
+
+The errors I’ve described above are the ones I’ve noticed crop up the most/the ones I’ve found most pernicious and annoying to identify. However, it’s a totally subjective list of my personal bugbears and by no means an exhaustive list of potential data cleaning errors.
+
+Below is a list of other useful tests/assertions you might want to check for in your data:
+
+* Assert that an ID column contains only unique values
+* Assert that there are no duplicate rows in the table
+* Assert that a field has no NAs/NULLs
+* Assert that values fall within a specified range (for e.g. there are no purchase amounts < 0)
+* Assert that a field has the expected type
+
+I’d love to hear thoughts about other errors that people have come across, and/or tests that they implement in their data cleaning code.
+
+I’d also love to hear how people are implementing tests in the analysis code so hit me up if you have any thoughts big or small!

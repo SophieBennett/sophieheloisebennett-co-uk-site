@@ -1,0 +1,21 @@
+﻿user,signup_date,age,plan
+1,01/01/2020,21,Trial
+2,01/01/2020,45,Trial (extended)
+3,03/01/2020,33,Premium Plus
+4,04/01/2020,19,Premium Plus (Weekly)
+5,04/01/2020,,Premium
+6,07/01/2020,18,
+7,08/01/2020,21,Basic
+8,12/01/2020,25,Trial
+9,13/01/2020,36,Basic
+10,13/01/2020,51,Basic (Weekly)
+11,13/01/2020,32,Basic Plus 
+12,14/01/2020,27,
+13,14/01/2020,33,Basic Plus
+14,15/01/2020,24,Trial (extended)
+15,16/01/2020,29,Basic
+16,16/01/2020,22,Premium
+17,20/01/2020,41,Basic Plus
+18,21/01/2020,18,Premium
+19,22/01/2020,20,Trial
+20,22/01/2020,,Basic

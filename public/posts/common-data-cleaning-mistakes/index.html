@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Sophie Bennett">
+    <meta name="description" content="Sophie Bennett&#39;s personal website">
+    <meta name="keywords" content="blog,data,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Common Data Cleaning Mistakes... and How to Prevent Them"/>
+<meta name="twitter:description" content="pre.r { color:#000;background-color:#ECECEC;}Recently, I’ve been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What’s more, data mistakes are often be semi-invisible; they don’t result in a website failing to load, or code not running. Instead, we obtain some data, an analysis or model is produced - it’s just the wrong data, an inaccurate model, or the wrong conclusion."/>
+
+    <meta property="og:title" content="Common Data Cleaning Mistakes... and How to Prevent Them" />
+<meta property="og:description" content="pre.r { color:#000;background-color:#ECECEC;}Recently, I’ve been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What’s more, data mistakes are often be semi-invisible; they don’t result in a website failing to load, or code not running. Instead, we obtain some data, an analysis or model is produced - it’s just the wrong data, an inaccurate model, or the wrong conclusion." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/posts/common-data-cleaning-mistakes/" />
+<meta property="article:published_time" content="2021-04-20T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-04-20T00:00:00+00:00" />
+
+
+    
+      <base href="/posts/common-data-cleaning-mistakes/">
+    
+    <title>
+  Common Data Cleaning Mistakes... and How to Prevent Them · Sophie Bennett
+</title>
+
+    
+      <link rel="canonical" href="/posts/common-data-cleaning-mistakes/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="/css/coder.min.ed86bdf30a2eb89a4275c19c4dbc7049cf9a6a03703e463e764a543757068405.css" integrity="sha256-7Ya98wouuJpCdcGcTbxwSc&#43;aagNwPkY&#43;dkpUN1cGhAU=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/images/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.69.0" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">
+      Sophie Bennett
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/about/">About</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/projects/">Projects</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="/contact/">Contact me</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">Common Data Cleaning Mistakes... and How to Prevent Them</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2021-04-20T00:00:00Z'>
+                April 20, 2021
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              13-minute read
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        
+
+
+<style>
+  pre.r { 
+    color:#000;
+    background-color:#ECECEC;
+  }
+</style>
+<p>Recently, I’ve been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What’s more, data mistakes are often be semi-invisible; they don’t result in a website failing to load, or code not running. Instead, we obtain some data, an analysis or model is produced - it’s just the <em>wrong</em> data, an inaccurate model, or the <em>wrong</em> conclusion.</p>
+<p>So how do we identify and prevent errors before they cost us? Compulsory code review can certainly help us to avoid mistakes. But relying solely on code review to detect errors is a risky strategy that places heavy burden on the reviewer.</p>
+<p>That’s why, as much as possible, it’s good to write tests and assertations that systematically check for common data mistakes.</p>
+<p>Some things are undoubtedly easier to test than others; it’s easier to check that some analysis code does what you think it does than to test that you’ve chosen the correct statistical tests (although you could write tests to check that the assumptions of a statistical test are met).</p>
+<p>On the other hand, data cleaning is a part of the analysis process that I believe lends itself more naturally to tests.</p>
+<p>It’s not easy to anticipate every potential source of error. However, there are at least some mistakes that I believe crop up commonly, that I’ve <em>definitely</em> made myself, and that I’ve watched many others make:</p>
+<ul>
+<li>Row Explosion During Joins</li>
+<li>Accidental Filtering of Null/NAs</li>
+<li>Case-When Categorisation Mistakes</li>
+<li>WHERE Statements in SQL That Aren’t What They Seem</li>
+</ul>
+<p>None of these mistakes are unavoidable - so as well as explain the mistake with a worked example, I’m going to go through the tests I use to identify these mistakes in my own code.</p>
+<p>To explain what I mean by each of these mistakes, and show how they can be prevented, I’m going to use two small, fake data sets. First, the <code>users</code> table, a table of imaginary users who signed up to an imaginary website on either a trial or paying plan.</p>
+<div class="highlight">
+<pre class="r"><code>users %&gt;% 
+  head(5)</code></pre>
+<pre><code>## # A tibble: 5 x 4
+##   user_id signup_date   age plan                 
+##     &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;                
+## 1       1 01/01/2020     21 Trial                
+## 2       2 01/01/2020     45 Trial (extended)     
+## 3       3 03/01/2020     33 Premium Plus         
+## 4       4 04/01/2020     19 Premium Plus (Weekly)
+## 5       5 04/01/2020     NA Premium</code></pre>
+</div>
+<p>Second, a table of purchases made by our imaginary users, in a table called <code>payments</code>.</p>
+<div class="highlight">
+<pre class="r"><code>payments %&gt;% 
+  head(5)</code></pre>
+<pre><code>## # A tibble: 5 x 3
+##   user_id payment_date amount
+##     &lt;dbl&gt; &lt;chr&gt;         &lt;dbl&gt;
+## 1       3 04/01/2020    200. 
+## 2       4 01/08/2020     34.7
+## 3       5 09/01/2020    160. 
+## 4       7 13/01/2020     69.8
+## 5       9 13/01/2020     69.8</code></pre>
+</div>
+<p>Without further avail, let’s look at these mistakes.</p>
+<div id="mistake-1-row-explosion-during-joins" class="section level2">
+<h2>Mistake 1: Row Explosion During Joins</h2>
+<div id="example-problem" class="section level3">
+<h3>Example Problem</h3>
+<p>Suppose I want to join the <code>purchases</code> table to the <code>users</code> table, to find out which users have made purchases, and how much each user has spent.</p>
+<p>The <code>user_id</code> column exists in both tables, so I use this column to perform a left join of the purchases onto the users table:</p>
+<div class="highlight">
+<pre class="r"><code>users %&gt;% 
+  left_join(payments, by = &quot;user_id&quot;) %&gt;% 
+  head(5)</code></pre>
+<pre><code>## # A tibble: 5 x 6
+##   user_id signup_date   age plan                  payment_date amount
+##     &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;                 &lt;chr&gt;         &lt;dbl&gt;
+## 1       1 01/01/2020     21 Trial                 &lt;NA&gt;           NA  
+## 2       2 01/01/2020     45 Trial (extended)      &lt;NA&gt;           NA  
+## 3       3 03/01/2020     33 Premium Plus          04/01/2020    200. 
+## 4       4 04/01/2020     19 Premium Plus (Weekly) 01/08/2020     34.7
+## 5       4 04/01/2020     19 Premium Plus (Weekly) 15/01/2020     34.7</code></pre>
+</div>
+<p>At first glance, everything looks fine. But, if we compare the row count before and after the join, we can see that the row count has actually increased after the left join:</p>
+<div class="highlight">
+<pre class="r"><code># row count before join
+users %&gt;% 
+  nrow()</code></pre>
+<pre><code>## [1] 20</code></pre>
+</div>
+<div class="highlight">
+<pre class="r"><code># row count after join
+users %&gt;% 
+  left_join(payments, by = &quot;user_id&quot;) %&gt;% 
+  nrow()</code></pre>
+<pre><code>## [1] 24</code></pre>
+</div>
+<p>So, what’s happened?</p>
+<p>At first glance, the <code>user_id</code> field in <code>purchases</code> may appear to be a primary key. But actually, a user can make more than one payment, and so appear multiple times in the table.</p>
+<p>When we left join the purchases table to the users table, the entries for these users are duplicated in <code>users</code> to account for the multiple payments:</p>
+<div class="highlight">
+<pre class="r"><code>users %&gt;% 
+  filter(user_id %in% c(4, 10)) %&gt;% 
+  left_join(payments, by = &quot;user_id&quot;) %&gt;% 
+  head(5)</code></pre>
+<pre><code>## # A tibble: 5 x 6
+##   user_id signup_date   age plan                  payment_date amount
+##     &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;                 &lt;chr&gt;         &lt;dbl&gt;
+## 1       4 04/01/2020     19 Premium Plus (Weekly) 01/08/2020     34.7
+## 2       4 04/01/2020     19 Premium Plus (Weekly) 15/01/2020     34.7
+## 3       4 04/01/2020     19 Premium Plus (Weekly) 21/01/2020     34.7
+## 4      10 13/01/2020     51 Basic (Weekly)        15/01/2020     12.0
+## 5      10 13/01/2020     51 Basic (Weekly)        21/01/2020     12.0</code></pre>
+</div>
+<p>Usually this mistake is made because there is a column that <em>looks</em> like it should be a primary key, but that turns out not to be. Admittedly, in the example I’ve given, assuming that <code>user_id</code> is a primary key in the purchases table might seem oviously misguided. However, I promise you, there will be situations less clear-cut - and I have definitely seen this mistake made many times.</p>
+</div>
+<div id="error-detection" class="section level3">
+<h3>Error Detection</h3>
+<p>There are two tests that can be useful to detect and avoid this mistake.</p>
+<p>One check that we can do is to look at the row count before and after joining the tables, to ensure that the row count has changed (or not changed) as expected.</p>
+<p>For instance, in my example, I’m expecting the row count to remain the same after joining the payments table. I’d say this is a common situation when performing a left join.</p>
+<p>This means that I could identify my mistake by checking that the number of rows in the <code>users</code> table is the same before and after the join.</p>
+<p>Although I could write a function in my code to test that the number of rows hasn’t changed, there are already some great packages that enable easy testing. Here, I’m using <code>assertthat</code>, but you could also look at either <code>assertr</code> or <code>testthat</code>. Likewise, there are similar libraries in Python (e.g. <code>pytest</code>).</p>
+<p>Note that to enable my code to run, I’m using the <code>see_if()</code> function from the package, which returns a logical value, with the error message as an attribute, but doesn’t stop my code from running.</p>
+<p>In actual production code though, use <code>assert_that()</code>, which will return an error and stop the code from running any further.</p>
+<div class="highlight">
+<pre class="r"><code>user_summary &lt;- users %&gt;% 
+  left_join(payments, by = &quot;user_id&quot;)
+
+see_if(are_equal(nrow(users), nrow(user_summary)))</code></pre>
+<pre><code>## [1] FALSE
+## attr(,&quot;msg&quot;)
+## [1] &quot;nrow(users) not equal to nrow(user_summary)&quot;</code></pre>
+<pre class="r"><code># in production code, replace see_if() with assert_that():
+# assert_that(nrow(users) == nrow(user_summary))</code></pre>
+</div>
+<p>(In my code, <code>assertthat</code> is simply testing the condition that I’ve stipulated, to help me detect my mistake.)</p>
+<p>Another check that’s useful in this context is to test whether the primary key is still unique after performing the join.</p>
+<p>For instance, in my example, the <code>user_id</code> columns contains unique values - and a test would tell me that this is not the case after performing my join.</p>
+<div class="highlight">
+<pre class="r"><code>see_if(are_equal(length(user_summary$user_id), length(unique(user_summary$user_id))))</code></pre>
+<pre><code>## [1] FALSE
+## attr(,&quot;msg&quot;)
+## [1] &quot;length(user_summary$user_id) not equal to length(unique(user_summary$user_id))&quot;</code></pre>
+</div>
+</div>
+</div>
+<div id="mistake-2-accidental-filtering-of-nullsnas" class="section level2">
+<h2>Mistake 2: Accidental Filtering of Nulls/NAs</h2>
+<div id="example-problem-1" class="section level3">
+<h3>Example Problem</h3>
+<p>Suppose I want to filter out all of the users on a ‘Premium Plus’ plan from my <code>users</code> table. All I need to do is to filter for any plan that’s not equal to ‘Premium Plus’, right?</p>
+<div class="highlight">
+<pre class="r"><code>users %&gt;% 
+  filter(plan != &quot;Premium Plus&quot;)</code></pre>
+<pre><code>## # A tibble: 17 x 4
+##    user_id signup_date   age plan                 
+##      &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;                
+##  1       1 01/01/2020     21 Trial                
+##  2       2 01/01/2020     45 Trial (extended)     
+##  3       4 04/01/2020     19 Premium Plus (Weekly)
+##  4       5 04/01/2020     NA Premium              
+##  5       7 08/01/2020     21 Basic                
+##  6       8 12/01/2020     25 Trial                
+##  7       9 13/01/2020     36 Basic                
+##  8      10 13/01/2020     51 Basic (Weekly)       
+##  9      11 13/01/2020     32 Basic Plus           
+## 10      13 14/01/2020     33 Basic Plus           
+## 11      14 15/01/2020     24 Trial (extended)     
+## 12      15 16/01/2020     29 Basic                
+## 13      16 16/01/2020     22 Premium              
+## 14      17 20/01/2020     41 Basic Plus           
+## 15      18 21/01/2020     18 Premium              
+## 16      19 22/01/2020     20 Trial                
+## 17      20 22/01/2020     NA Basic</code></pre>
+</div>
+<p>Looking at this table, I have indeed filtered out the Premium Plus users…</p>
+<p>But the table only had 1 Premium Plus user. And when I count the number of rows left in my table, I’ve gone from 20 rows to 17 rows!</p>
+<div class="highlight">
+<pre class="r"><code>users %&gt;% 
+  filter(plan != &quot;Premium Plus&quot;) %&gt;% 
+  nrow()</code></pre>
+<pre><code>## [1] 17</code></pre>
+</div>
+<p>As it turns out, some users in the table have a NULL entry for plan. And, while filtering out the Premium Plus users, I’ve filtered out all of these users too!</p>
+<p>This happens because R doesn’t know what to do with these cases. If the value is NULL then it’s impossible to evaluate the truthiness of the statement. So, it just gets removed. (FYI this isn’t just an ‘R’ thing, this is usual behaviour for any coding language).</p>
+<p>You might say, ‘but this shouldn’t happen! The <code>plan</code> column should never be NULL!’.</p>
+<p>Sure, it probably shouldn’t be. But it is. Welcome to data in the real world!</p>
+</div>
+<div id="error-detection-1" class="section level3">
+<h3>Error Detection</h3>
+<p>Here again, we can test that this error has not occurred by checking the row count before and after the filter.</p>
+<p>First, we need to find out how many rows match the condition we want to filter out (in this case, the number of users with a Premium Plus plan).</p>
+<div class="highlight">
+<pre class="r"><code>n_premium_plus &lt;- users %&gt;% 
+  filter(plan == &quot;Premium Plus&quot;) %&gt;% 
+  nrow()</code></pre>
+</div>
+<p>We then need to check that we’ve only removed this number of rows after filtering.</p>
+<div class="highlight">
+<pre class="r"><code>filtered_users &lt;- users %&gt;% 
+  filter(plan != &quot;Premium Plus&quot;)
+
+see_if(are_equal(nrow(filtered_users), nrow(users) - n_premium_plus))</code></pre>
+<pre><code>## [1] FALSE
+## attr(,&quot;msg&quot;)
+## [1] &quot;nrow(filtered_users) not equal to nrow(users) - n_premium_plus&quot;</code></pre>
+</div>
+<p>And, that’s not it! We can also write tests to ensure that there are no null values in the <code>plan</code> to begin with:</p>
+<div class="highlight">
+<pre class="r"><code>see_if(noNA(users$plan))</code></pre>
+<pre><code>## [1] FALSE
+## attr(,&quot;msg&quot;)
+## [1] &quot;users$plan contains 2 missing values&quot;</code></pre>
+</div>
+<p>(The code above counts the number of NULLs in the column to ensure that this count is equal to zero).</p>
+</div>
+</div>
+<div id="mistake-3-illogical-cases" class="section level2">
+<h2>Mistake 3: Illogical Cases</h2>
+<div id="example-problem-2" class="section level3">
+<h3>Example Problem</h3>
+<p>This problem occurs when you write a series of CASE… WHEN statements to categorise column entries, but the order of your CASE statements means that one of your CASE conditions is never met.</p>
+<p>For instance, in my <code>users</code> table there are a number of different plans, some of which seem like variations on the same plan (for e.g. ‘Premium’ and ‘Premium (Weekly)’. I want to re-categorise the plans into a smaller set of categories, so I write a case when statement:</p>
+<div class="highlight">
+<pre class="r"><code>users %&gt;% 
+  mutate(plan_type = case_when(
+    str_detect(plan, &quot;Basic&quot;) ~ &quot;Basic&quot;,
+    str_detect(plan, &quot;Premium&quot;) ~ &quot;Premium&quot;,
+    str_detect(plan, &quot;Basic Plus&quot;) ~ &quot;Basic Plus&quot;,
+    str_detect(plan, &quot;Premium Plus&quot;) ~ &quot;Premium Plus&quot;,
+    str_detect(plan, &quot;Trial&quot;) | is.na(plan) ~ &quot;Trial&quot;
+  ))</code></pre>
+<pre><code>## # A tibble: 20 x 5
+##    user_id signup_date   age plan                  plan_type
+##      &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;                 &lt;chr&gt;    
+##  1       1 01/01/2020     21 Trial                 Trial    
+##  2       2 01/01/2020     45 Trial (extended)      Trial    
+##  3       3 03/01/2020     33 Premium Plus          Premium  
+##  4       4 04/01/2020     19 Premium Plus (Weekly) Premium  
+##  5       5 04/01/2020     NA Premium               Premium  
+##  6       6 07/01/2020     18 &lt;NA&gt;                  Trial    
+##  7       7 08/01/2020     21 Basic                 Basic    
+##  8       8 12/01/2020     25 Trial                 Trial    
+##  9       9 13/01/2020     36 Basic                 Basic    
+## 10      10 13/01/2020     51 Basic (Weekly)        Basic    
+## 11      11 13/01/2020     32 Basic Plus            Basic    
+## 12      12 14/01/2020     27 &lt;NA&gt;                  Trial    
+## 13      13 14/01/2020     33 Basic Plus            Basic    
+## 14      14 15/01/2020     24 Trial (extended)      Trial    
+## 15      15 16/01/2020     29 Basic                 Basic    
+## 16      16 16/01/2020     22 Premium               Premium  
+## 17      17 20/01/2020     41 Basic Plus            Basic    
+## 18      18 21/01/2020     18 Premium               Premium  
+## 19      19 22/01/2020     20 Trial                 Trial    
+## 20      20 22/01/2020     NA Basic                 Basic</code></pre>
+</div>
+<p>This may not look immediately problematic, but let’s see what happens when I count up the number of rows in each plan_type:</p>
+<div class="highlight">
+<pre class="r"><code>users %&gt;% 
+  mutate(plan_type = case_when(
+    str_detect(plan, &quot;Basic&quot;) ~ &quot;Basic&quot;,
+    str_detect(plan, &quot;Premium&quot;) ~ &quot;Premium&quot;,
+    str_detect(plan, &quot;Basic Plus&quot;) ~ &quot;Basic Plus&quot;,
+    str_detect(plan, &quot;Premium Plus&quot;) ~ &quot;Premium Plus&quot;,
+    str_detect(plan, &quot;Trial&quot;) | is.na(plan) ~ &quot;Trial&quot;
+  )) %&gt;% 
+  count(plan_type)</code></pre>
+<pre><code>## # A tibble: 3 x 2
+##   plan_type     n
+##   &lt;chr&gt;     &lt;int&gt;
+## 1 Basic         8
+## 2 Premium       5
+## 3 Trial         7</code></pre>
+</div>
+<p>We can now see that there are no ‘Basic Plus’ and ‘Premium Plus’ plans - all of those plans have been lumped into the ‘Basic’ or ‘Premium’ categories.</p>
+<p>The ‘Basic Plus’ plans all meet the first case condition since they all contain the word ‘Basic’. So, the case/when evaluates as TRUE, and these plans are all binned into the ‘Basic’ plan type.</p>
+<p>In a case-when statement, as soon as a condition is met for a given row, the row is transformed accordingly and we move onto the next row.</p>
+</div>
+<div id="error-detection-2" class="section level3">
+<h3>Error Detection</h3>
+<p>A good starting point to identify this type of categorisation error is simply to count up the rows per category after the case-when is applied. If any categories are unexpectedly returning zero, this should be an indication that the categorisation has not been done as expected.</p>
+<p>We could test this by asserting that none of the category counts are equal to zero.</p>
+<p>However, I appreciate that this isn’t a failproof check; the count for a category could be greater than zero whilst still being incorrect, and sometimes we may have categories that should have a count of zero.</p>
+</div>
+</div>
+<div id="mistake-4-the-sql-filter-that-doesnt-do-what-you-think" class="section level2">
+<h2>Mistake 4: The SQL Filter That Doesn’t Do What You Think</h2>
+<p>This is a different class of filtering error that I’ve come across when analysts work in SQL.</p>
+<p>For instance, suppose I write the following SQL statement to re-categorise plans, and filter out trial plans:</p>
+<div class="highlight">
+<pre><code>
+&#39;SELECT user,
+        signup_date,
+        age,
+        CASE
+          WHEN plan = &quot;Basic Plus&quot; THEN &quot;Basic Plus&quot;
+          WHEN plan = &quot;Premium Plus&quot; THEN &quot;Premium Plus&quot;
+          WHEN plan LIKE &quot;%Basic%&quot; THEN &quot;Basic&quot;
+          WHEN plan LIKE &quot;%Premium%&quot; THEN &quot;Premium&quot;
+          WHEN plan IS NULL OR plan LIKE &quot;%Trial%&quot; THEN &quot;Trial&quot;
+          ELSE &quot;Other&quot;
+        END AS plan
+  FROM users
+  WHERE plan NOT = &quot;Trial&quot;&#39;</code></pre>
+</div>
+<p>At first glance, this may not look problematic.</p>
+<p>However, in SQL the WHERE command is processed before the SELECT command.</p>
+<p>What this means is that I am filtering out plans called ‘Trial’ before re-categorising empty or null plans to ‘Trial’. As such, these plans are erroneously returned in my query.</p>
+<div id="error-detection-3" class="section level3">
+<h3>Error Detection</h3>
+<p>Sadly, there’s no handy assertthat package for SQL. To prevent this error altogether in SQL code, it’s useful to avoid naming new transformed or re-categorised columns with the same name as the original column. (For e.g. if you’re not feeling particularly inventive, call the new <code>plans</code> column something like <code>recategorised_plans</code>). Giving the transformed column a different name will make it more immediately obvious that the WHERE command occurs before SELECT, as your SQL server will return an error..</p>
+<p>Sometimes - and particularly if you’re writing ETL/ELT code, you may still want to implement tests as a more foolproof way of avoiding this error. In this case, I suggest using dbt (data build tool), an analytics engineering tool which, among many other great features, enables you to write tests on your SQL code.</p>
+<p>For instance, in this example, I could include tests with dbt to ensure that there are no null or empty plans in the data returned by the query.</p>
+</div>
+</div>
+<div id="other-checks-and-assertations" class="section level2">
+<h2>Other Checks and Assertations</h2>
+<p>The errors I’ve described above are the ones I’ve noticed crop up the most/the ones I’ve found most pernicious and annoying to identify. However, it’s a totally subjective list of my personal bugbears and by no means an exhaustive list of potential data cleaning errors.</p>
+<p>Below is a list of other useful tests/assertions you might want to check for in your data:</p>
+<ul>
+<li>Assert that an ID column contains only unique values</li>
+<li>Assert that there are no duplicate rows in the table</li>
+<li>Assert that a field has no NAs/NULLs</li>
+<li>Assert that values fall within a specified range (for e.g. there are no purchase amounts &lt; 0)</li>
+<li>Assert that a field has the expected type</li>
+</ul>
+<p>I’d love to hear thoughts about other errors that people have come across, and/or tests that they implement in their data cleaning code.</p>
+<p>I’d also love to hear how people are implementing tests in the analysis code so hit me up if you have any thoughts big or small!</p>
+</div>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    
+  </section>
+
+      </div>
+
+      <script src="//yihui.org/js/math-code.js"></script>
+<script async
+src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<footer class="footer">
+  <section class="container">
+    
+    
+      
+        © 2019 - 2021
+      
+       Sophie Bennett 
+    
+    
+       · 
+      Powered by <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+    
+    
+       · 
+      [<a href="https://github.com/luizdepra/hugo-coder/tree/"></a>]
+    
+  </section>
+</footer>
+
+    </main>
+
+    
+
+  </body>
+
+</html>
