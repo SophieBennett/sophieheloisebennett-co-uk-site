@@ -241,7 +241,7 @@ see_if(noNA(users$plan))
 
 (The code above counts the number of NULLs in the column to ensure that this count is equal to zero).
 
-## Mistake 3: Illogical Cases
+## Mistake 3: Case-When Categorisation Mistakes
 
 ### Example Problem
 
