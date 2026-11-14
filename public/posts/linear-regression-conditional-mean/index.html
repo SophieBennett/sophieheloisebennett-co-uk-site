@@ -5,37 +5,39 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="author" content="Sophie Bennett">
-    <meta name="description" content="Sophie Bennett&#39;s personal website">
-    <meta name="keywords" content="blog,data,personal">
+    <meta name="author" content="Dr Sophie Bennett">
+    <meta name="description" content="Writing about data science, experimentation, statistics and public data.">
+    <meta name="keywords" content="data science,experimentation,statistics,data visualisation">
 
     <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Why Linear Regression Estimates the Conditional Mean"/>
-<meta name="twitter:description" content="pre.r { color:#000;background-color:#ECECEC;}Because you can never know too much about linear regression.
-IntroductionIf you look at any textbook on linear regression, you will find that it says the following:
+<meta name="twitter:description" content="Because you can never know too much about linear regression.
+Introduction If you look at any textbook on linear regression, you will find that it says the following:
 “Linear regression estimates the conditional mean of the response variable.”
-This means that, for a given value of the predictor variable \(X\), linear regression will give you the mean value of the response variable \(Y\)."/>
+This means that, for a given value of the predictor variable \(X\), linear regression will give you the mean value of the response variable \(Y\).
+Now, in and of itself, it’s a pretty neat fact… but, why is it true?"/>
 
     <meta property="og:title" content="Why Linear Regression Estimates the Conditional Mean" />
-<meta property="og:description" content="pre.r { color:#000;background-color:#ECECEC;}Because you can never know too much about linear regression.
-IntroductionIf you look at any textbook on linear regression, you will find that it says the following:
+<meta property="og:description" content="Because you can never know too much about linear regression.
+Introduction If you look at any textbook on linear regression, you will find that it says the following:
 “Linear regression estimates the conditional mean of the response variable.”
-This means that, for a given value of the predictor variable \(X\), linear regression will give you the mean value of the response variable \(Y\)." />
+This means that, for a given value of the predictor variable \(X\), linear regression will give you the mean value of the response variable \(Y\).
+Now, in and of itself, it’s a pretty neat fact… but, why is it true?" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/posts/linear-regression-conditional-mean/" />
+<meta property="og:url" content="https://sophieheloisebennett.com/posts/linear-regression-conditional-mean/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2020-05-27T00:00:00+00:00" />
 <meta property="article:modified_time" content="2020-05-27T00:00:00+00:00" />
 
 
     
-      <base href="/posts/linear-regression-conditional-mean/">
+      <base href="https://sophieheloisebennett.com/posts/linear-regression-conditional-mean/">
     
     <title>
-  Why Linear Regression Estimates the Conditional Mean · Sophie Bennett
+  Why Linear Regression Estimates the Conditional Mean · Dr Sophie Bennett
 </title>
 
     
-      <link rel="canonical" href="/posts/linear-regression-conditional-mean/">
+      <link rel="canonical" href="https://sophieheloisebennett.com/posts/linear-regression-conditional-mean/">
     
 
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700" rel="stylesheet">
@@ -45,7 +47,7 @@ This means that, for a given value of the predictor variable \(X\), linear regre
     
       
       
-      <link rel="stylesheet" href="/css/coder.min.ed86bdf30a2eb89a4275c19c4dbc7049cf9a6a03703e463e764a543757068405.css" integrity="sha256-7Ya98wouuJpCdcGcTbxwSc&#43;aagNwPkY&#43;dkpUN1cGhAU=" crossorigin="anonymous" media="screen" />
+      <link rel="stylesheet" href="https://sophieheloisebennett.com/css/coder.min.ed86bdf30a2eb89a4275c19c4dbc7049cf9a6a03703e463e764a543757068405.css" integrity="sha256-7Ya98wouuJpCdcGcTbxwSc&#43;aagNwPkY&#43;dkpUN1cGhAU=" crossorigin="anonymous" media="screen" />
     
 
     
@@ -53,15 +55,17 @@ This means that, for a given value of the predictor variable \(X\), linear regre
     
 
     
-
+      <link rel="stylesheet" href="https://sophieheloisebennett.com/css/custom.css" />
     
 
     
 
-    <link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/images/favicon-16x16.png" sizes="16x16">
+    
 
-    <meta name="generator" content="Hugo 0.69.0" />
+    <link rel="icon" type="image/png" href="https://sophieheloisebennett.com/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://sophieheloisebennett.com/images/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.111.3">
   </head>
 
   
@@ -70,8 +74,8 @@ This means that, for a given value of the predictor variable \(X\), linear regre
     <main class="wrapper">
       <nav class="navigation">
   <section class="container">
-    <a class="navigation-title" href="/">
-      Sophie Bennett
+    <a class="navigation-title" href="https://sophieheloisebennett.com/">
+      Dr Sophie Bennett
     </a>
     
     <input type="checkbox" id="menu-toggle" />
@@ -80,19 +84,19 @@ This means that, for a given value of the predictor variable \(X\), linear regre
       
         
           <li class="navigation-item">
-            <a class="navigation-link" href="/about/">About</a>
+            <a class="navigation-link" href="https://sophieheloisebennett.com/about/">About</a>
           </li>
         
           <li class="navigation-item">
-            <a class="navigation-link" href="/posts/">Blog</a>
+            <a class="navigation-link" href="https://sophieheloisebennett.com/posts/">Blog</a>
           </li>
         
           <li class="navigation-item">
-            <a class="navigation-link" href="/projects/">Projects</a>
+            <a class="navigation-link" href="https://sophieheloisebennett.com/playground/">Playground</a>
           </li>
         
           <li class="navigation-item">
-            <a class="navigation-link" href="/contact/">Contact me</a>
+            <a class="navigation-link" href="https://sophieheloisebennett.com/contact/">Contact me</a>
           </li>
         
       
@@ -224,7 +228,7 @@ squared_residuals </code></pre>
   theme(text = element_text(family = &quot;Lato&quot;),
         plot.title = element_text(family = &quot;Lato Semibold&quot;, hjust = 0.5)) +
   scale_y_continuous(labels = scales::comma)</code></pre>
-<p><img src="/posts/linear-regression-conditional-mean_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="https://sophieheloisebennett.com/posts/linear-regression-conditional-mean_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <p>Notice that the value that gives us the <em>smallest</em> sum of squared deviations, the lowest point on our curve, turns out to be 19.92, which is the mean of our dataset!</p>
 <p>Now, this isn’t just a fun feature of our sample dataset; given any set of numbers <span class="math inline">\(x_{1}...x_{n}\)</span>, the value that results in the smallest sum of squared deviations will <em>always</em> be the mean.</p>
@@ -241,9 +245,9 @@ squared_residuals </code></pre>
 <p><span class="math display">\[L(y) = \sum_{i=1}^{n} (y_{i} - \hat{y})^2\]</span></p>
 <p>Whenever we want to find the value of <span class="math inline">\(\hat{y}\)</span> that <strong>minimises</strong> a loss function, the way to solve this problem is by differentiation.</p>
 <p>Why? Well, let’s take a look back at our plot, where we calculated the sum of squared deviations for different values of <span class="math inline">\(\hat{y}\)</span>.</p>
-<p><img src="/posts/linear-regression-conditional-mean_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="https://sophieheloisebennett.com/posts/linear-regression-conditional-mean_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>The value that we want to find out, the one that minimises the sum of squared deviations, is the one at the lowest point of the curve, where the gradient of the curve is equal to zero.</p>
-<p><img src="/posts/linear-regression-conditional-mean_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="https://sophieheloisebennett.com/posts/linear-regression-conditional-mean_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>And so, what we’re really doing here is asking, what value does my summary statistic take, at the point at which the <strong>gradient</strong> of the sum of squared deviations function is equal to zero?</p>
 <p>And finding gradients? Well, that’s a job for differentiation!</p>
 <p>So, we want to differentiate our loss function:</p>
@@ -300,17 +304,14 @@ src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM
     
     
       
-        © 2019 - 2021
+        © 2019 - 2026
       
-       Sophie Bennett 
+       Dr Sophie Bennett 
     
     
        · 
       Powered by <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
     
-    
-       · 
-      [<a href="https://github.com/luizdepra/hugo-coder/tree/"></a>]
     
   </section>
 </footer>

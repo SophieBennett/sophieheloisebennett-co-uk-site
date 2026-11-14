@@ -5,33 +5,35 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="author" content="Sophie Bennett">
-    <meta name="description" content="Sophie Bennett&#39;s personal website">
-    <meta name="keywords" content="blog,data,personal">
+    <meta name="author" content="Dr Sophie Bennett">
+    <meta name="description" content="Writing about data science, experimentation, statistics and public data.">
+    <meta name="keywords" content="data science,experimentation,statistics,data visualisation">
 
     <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Scraping Government Search Registers (with BeautifulSoup)"/>
-<meta name="twitter:description" content="pre.r { color:#000;background-color:#ECECEC;}div.highlightsql pre { color:#000;background-color:#ECECEC;}Sadly no wacky data analysis projects to report this month (it’s been busy), so instead I’m going to go through a little web scraping project I did recently for my workplace. (In Python this time, largely for the purposes of my own learning and development).
-The mission: From this search register, generate a list of schools plus the schools’ website domain name."/>
+<meta name="twitter:description" content="Sadly no wacky data analysis projects to report this month (it’s been busy), so instead I’m going to go through a little web scraping project I did recently for my workplace. (In Python this time, largely for the purposes of my own learning and development).
+The mission: From this search register, generate a list of schools plus the schools’ website domain name.
+Step 1: Scrape the school website domain name for a single school (e."/>
 
     <meta property="og:title" content="Scraping Government Search Registers (with BeautifulSoup)" />
-<meta property="og:description" content="pre.r { color:#000;background-color:#ECECEC;}div.highlightsql pre { color:#000;background-color:#ECECEC;}Sadly no wacky data analysis projects to report this month (it’s been busy), so instead I’m going to go through a little web scraping project I did recently for my workplace. (In Python this time, largely for the purposes of my own learning and development).
-The mission: From this search register, generate a list of schools plus the schools’ website domain name." />
+<meta property="og:description" content="Sadly no wacky data analysis projects to report this month (it’s been busy), so instead I’m going to go through a little web scraping project I did recently for my workplace. (In Python this time, largely for the purposes of my own learning and development).
+The mission: From this search register, generate a list of schools plus the schools’ website domain name.
+Step 1: Scrape the school website domain name for a single school (e." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/posts/school-web-scraping/" />
+<meta property="og:url" content="https://sophieheloisebennett.com/posts/school-web-scraping/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2020-09-30T00:00:00+00:00" />
 <meta property="article:modified_time" content="2020-09-30T00:00:00+00:00" />
 
 
     
-      <base href="/posts/school-web-scraping/">
+      <base href="https://sophieheloisebennett.com/posts/school-web-scraping/">
     
     <title>
-  Scraping Government Search Registers (with BeautifulSoup) · Sophie Bennett
+  Scraping Government Search Registers (with BeautifulSoup) · Dr Sophie Bennett
 </title>
 
     
-      <link rel="canonical" href="/posts/school-web-scraping/">
+      <link rel="canonical" href="https://sophieheloisebennett.com/posts/school-web-scraping/">
     
 
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700" rel="stylesheet">
@@ -41,7 +43,7 @@ The mission: From this search register, generate a list of schools plus the scho
     
       
       
-      <link rel="stylesheet" href="/css/coder.min.ed86bdf30a2eb89a4275c19c4dbc7049cf9a6a03703e463e764a543757068405.css" integrity="sha256-7Ya98wouuJpCdcGcTbxwSc&#43;aagNwPkY&#43;dkpUN1cGhAU=" crossorigin="anonymous" media="screen" />
+      <link rel="stylesheet" href="https://sophieheloisebennett.com/css/coder.min.ed86bdf30a2eb89a4275c19c4dbc7049cf9a6a03703e463e764a543757068405.css" integrity="sha256-7Ya98wouuJpCdcGcTbxwSc&#43;aagNwPkY&#43;dkpUN1cGhAU=" crossorigin="anonymous" media="screen" />
     
 
     
@@ -49,15 +51,17 @@ The mission: From this search register, generate a list of schools plus the scho
     
 
     
-
+      <link rel="stylesheet" href="https://sophieheloisebennett.com/css/custom.css" />
     
 
     
 
-    <link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/images/favicon-16x16.png" sizes="16x16">
+    
 
-    <meta name="generator" content="Hugo 0.69.0" />
+    <link rel="icon" type="image/png" href="https://sophieheloisebennett.com/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://sophieheloisebennett.com/images/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.111.3">
   </head>
 
   
@@ -66,8 +70,8 @@ The mission: From this search register, generate a list of schools plus the scho
     <main class="wrapper">
       <nav class="navigation">
   <section class="container">
-    <a class="navigation-title" href="/">
-      Sophie Bennett
+    <a class="navigation-title" href="https://sophieheloisebennett.com/">
+      Dr Sophie Bennett
     </a>
     
     <input type="checkbox" id="menu-toggle" />
@@ -76,19 +80,19 @@ The mission: From this search register, generate a list of schools plus the scho
       
         
           <li class="navigation-item">
-            <a class="navigation-link" href="/about/">About</a>
+            <a class="navigation-link" href="https://sophieheloisebennett.com/about/">About</a>
           </li>
         
           <li class="navigation-item">
-            <a class="navigation-link" href="/posts/">Blog</a>
+            <a class="navigation-link" href="https://sophieheloisebennett.com/posts/">Blog</a>
           </li>
         
           <li class="navigation-item">
-            <a class="navigation-link" href="/projects/">Projects</a>
+            <a class="navigation-link" href="https://sophieheloisebennett.com/playground/">Playground</a>
           </li>
         
           <li class="navigation-item">
-            <a class="navigation-link" href="/contact/">Contact me</a>
+            <a class="navigation-link" href="https://sophieheloisebennett.com/contact/">Contact me</a>
           </li>
         
       
@@ -158,7 +162,7 @@ html = BeautifulSoup(response.content, &#39;html.parser&#39;)
 <p>An inspection of the html on the page reveals that the web domain is located in a division with an id = “details-summary”. This division contains a list of terms, tagged with the <code>&lt;dt&gt;</code> tag. Each list term is proceeded by a value, tagged with the <code>&lt;dd&gt;</code> tag.</p>
 <p>For instance, the school’s website has a <code>&lt;dt&gt;</code> element that says ‘Website:’ and a <code>&lt;dd&gt;</code> element that has the school website url in it, as an ‘href’ attribute:</p>
 <div class="figure">
-<img src="/posts/school-web-scraping_files/example-html-school-website.PNG" />
+<img src="https://sophieheloisebennett.com/posts/school-web-scraping_files/example-html-school-website.PNG" />
 
 </div>
 <p>Now, I could extract every element with a <code>&lt;dd&gt;</code> tag, but then I’d end up with much more than I want, and I’d still need to come up with a reliable way to identify the element corresponding to the school website.</p>
@@ -444,17 +448,14 @@ src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM
     
     
       
-        © 2019 - 2021
+        © 2019 - 2026
       
-       Sophie Bennett 
+       Dr Sophie Bennett 
     
     
        · 
       Powered by <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
     
-    
-       · 
-      [<a href="https://github.com/luizdepra/hugo-coder/tree/"></a>]
     
   </section>
 </footer>

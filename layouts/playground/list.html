@@ -1,0 +1,22 @@
+{{ define "title" }}
+  {{ .Title }} · {{ .Site.Title }}
+{{ end }}
+{{ define "content" }}
+  {{ $pages := where .Site.RegularPages "Params.playground" true }}
+  {{ $paginator := .Paginate $pages }}
+  <section class="container list article-list playground-list">
+    <header class="list-header">
+      <p class="eyebrow">Experiments</p>
+      <h1 class="title">{{ .Title }}</h1>
+      {{ with .Content }}<div class="list-intro">{{ . }}</div>{{ end }}
+    </header>
+
+    <ul>
+      {{- range $paginator.Pages -}}
+        {{- .Render "li" -}}
+      {{- end -}}
+    </ul>
+
+    {{ partial "pagination.html" . }}
+  </section>
+{{ end }}

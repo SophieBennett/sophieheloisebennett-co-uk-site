@@ -1,5 +1,5 @@
-baseurl = "/"
-title = "Sophie Bennett"
+baseurl = "https://sophieheloisebennett.com/"
+title = "Dr Sophie Bennett"
 
 theme = "hugo-coder"
 
@@ -19,10 +19,10 @@ disqusShortname = ""
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 [params]
-    author = "Sophie Bennett"
-    description = "Sophie Bennett's personal website"
-    keywords = "blog,data,personal"
-    info = "Data Scientist/Psychologist"
+    author = "Dr Sophie Bennett"
+    description = "Writing about data science, experimentation, statistics and public data."
+    keywords = "data science,experimentation,statistics,data visualisation"
+    info = "Data leader across product, data science & engineering"
     avatarurl = "images/avatar.jpg"
     footercontent = ""
 
@@ -31,9 +31,6 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     hideCredits = false
     hideCopyright = false
     since = 2019
-
-    # Git Commit in Footer, uncomment the line below to enable it.
-    commit = "https://github.com/luizdepra/hugo-coder/tree/"
 
     rtl = false
 
@@ -48,7 +45,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     maxSeeAlsoItems = 5
 
     # Custom CSS
-    custom_css = []
+    custom_css = ["css/custom.css"]
     
     # Custom JS
     custom_js = []
@@ -64,15 +61,10 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     weight = 1
     url = "https://github.com/SophieBennett/"
 [[params.social]]
-    name = "Gitlab"
-    icon = "fab fa-gitlab"
+    name = "LinkedIn"
+    icon = "fab fa-linkedin"
     weight = 2
-    url = "https://gitlab.com/users/SHBennett/"
-[[params.social]]
-    name = "Twitter"
-    icon = "fab fa-twitter"
-    weight = 3
-    url = "https://twitter.com/SophieHeloise/"
+    url = "https://www.linkedin.com/in/sophie-heloise-bennett-226506211/"
 
 
 
@@ -93,9 +85,9 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
             url = "posts/"
 
             [[languages.en.menu.main]]
-            name = "Projects"
+            name = "Playground"
             weight = 3
-            url = "projects/"
+            url = "playground/"
 
             [[languages.en.menu.main]]
             name = "Contact me"

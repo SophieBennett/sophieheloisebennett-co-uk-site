@@ -4,18 +4,12 @@ author: "Sophie Bennett"
 date: "14 Jun 2020"
 output: html_document
 ---
-
-
-
-<style>
-  pre.r { 
-    color:#000;
-    background-color:#ECECEC;
-  }
-</style>
-<p>Random allocation of participants to experimental groups is a gold-standard for experimentation. We use random allocation to help ensure that participant characteristics are distributed evently across the experimental groups. This helps to avoid systematic differences between experimental groups at the start of the experiment.</p>
+<p>Random allocation of participants to experimental groups is a gold standard for experimentation. We use random allocation to help ensure that participant characteristics are distributed evenly across the experimental groups. This helps to avoid systematic differences between experimental groups at the start of the experiment.</p>
 <p>But how should we randomly allocate our participants?</p>
 <p>The most straightforward implementation is <strong>simple randomisation</strong>, where each participant is randomly assigned in turn to one of the experimental groups.</p>
+<div class="article-summary">
+<p><strong>Short answer:</strong> simple randomisation is statistically valid, but small samples can produce noticeably uneven group sizes. Restricted methods are useful when tighter allocation or balance on important baseline variables matters operationally.</p>
+</div>
 <p>For instance, this function generates an allocation list by randomly sampling with replacement from a set of numbers <span class="math inline">\(1...n\)</span>, where <span class="math inline">\(n\)</span> is the number of experimental groups.</p>
 <div class="highlight">
 <pre class="r"><code>randomise &lt;- function(total_ppts, num_groups) {
@@ -48,7 +42,7 @@ results %&gt;%
 ##  9           9 Group 2
 ## 10          10 Group 1</code></pre>
 </div>
-<p>The danger with simple randomisation is that we end up with more participants allocated to one experimental group than the other groups. This is called <strong>group imbalance</strong>.</p>
+<p>One risk with simple randomisation is that we end up with more participants allocated to one experimental group than the other groups. Here, I’ll call this <strong>allocation-count imbalance</strong>. This is different from <strong>covariate imbalance</strong>, where participant characteristics are unevenly distributed between groups.</p>
 <p>For instance, using my randomisation function to allocate 20 participants into one of two groups, I wound up with 13 in one group, and only 7 in the other.</p>
 <div class="highlight">
 <pre class="r"><code>table(results$Group)</code></pre>
@@ -57,8 +51,8 @@ results %&gt;%
 ##      13       7</code></pre>
 </div>
 <p>Now, using simple randomisation doesn’t mean that the groups will <em>always</em> be imbalanced. In fact, on average, we would expect the number of participants allocated to group 1 and group 2 to be equal<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
-<p>However, the probability of group imbalance depends on the total sample size of the participants; the smaller the sample size, the bigger the probability of group imbalance. Conversely, the bigger the participant sample, the smaller the probability of group imbalance. (<a href="https://pubmed.ncbi.nlm.nih.gov/3203523/">This paper</a> explains in more detail why that is.)</p>
-<p>So, the bigger our participant sample is, the less we need worry about group imbalance. That’s fine, but how big is ‘big enough’? At what sample size does group imbalance become a negligeable problem?</p>
+<p>However, the <em>relative</em> size of allocation-count imbalance depends on the total sample size. Larger samples tend to have group proportions closer to 50:50, even though exact equality is not guaranteed. (<a href="https://pubmed.ncbi.nlm.nih.gov/3203523/">This paper</a> explains this in more detail.)</p>
+<p>So, the bigger our participant sample is, the less we generally need to worry about a <em>large relative</em> difference in group sizes. That’s fine, but how big is ‘big enough’ for a particular tolerance?</p>
 <p>To answer this, let’s run some simulations.</p>
 <div id="simulations" class="section level2">
 <h2>Simulations</h2>
@@ -104,25 +98,25 @@ larger_sample_results &lt;- replicate(n = 1000, randomise_group_prop(10000, 2))<
 </div>
 <p><img src="/posts/simple-randomisation-imbalance_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Beautiful.</p>
-<p>So, what does these simulations tell us?</p>
-<p>Well, when we have a sample size of around 100 participants, we frequently obtain imbalanced groups. For instance, in 10% of my simulations, I wound up with 35% or fewer participants allocated to group 1.</p>
-<p>By the time we get to 1000 participants, things are looking much better, and by 10000 participants, the problem has basically gone away.</p>
-<p>(Note that I’ve used a simple experimental design with two experimental groups. With a more complicated experimental design, we’d expect to need a larger sample size before group imbalance stopped being a problem.)</p>
+<p>So, what do these simulations tell us?</p>
+<p>Well, when we have a sample size of around 100 participants, there is still noticeable variation around a 50:50 split.</p>
+<p>By the time we get to 1000 participants, the relative variation is much smaller, and it is smaller again at 10000. It has not disappeared; the group proportions are simply more tightly concentrated around 50:50.</p>
+<p>(Note that I’ve used a simple experimental design with two experimental groups. With more groups, the expected amount of allocation-count imbalance changes.)</p>
 </div>
 <div id="interpretation" class="section level2">
 <h2>Interpretation</h2>
-<p>So, does this mean that simple randomisation a bad choice when your sample size is in the ~100-500 participant range?</p>
+<p>So, does this mean that simple randomisation is a bad choice when your sample size is in the ~100-500 participant range?</p>
 <p>Fundamentally, it depends on how worried you are about the impacts of group imbalance on your experiment.</p>
-<p>Broadly, there are two major reasons why group imbalance can be a problem:</p>
+<p>There are two related but distinct concerns:</p>
 <ol style="list-style-type: decimal">
-<li>Loss of statistical power</li>
-<li>Confounding variables</li>
+<li>Unequal group sizes can reduce statistical precision.</li>
+<li>Important baseline characteristics can differ by chance between groups.</li>
 </ol>
-<p>The first problem with group imbalance is that it reduces the statistical power to detect significant effects. This is a problem if you’re anticipating a small or medium effect size, but less so if you’re anticipating a large effect size.</p>
-<p>The second problem with group imbalance is a somewhat trickier one to deal with. When groups are imbalanced, participant characteristics (for instance, the demographics of the participants) can wind up being split unevenly across the experimental groups. This can introduce confounding variables into the experiment.</p>
+<p>The first concern is mostly about precision. For a fixed total sample, an even split is usually the most statistically efficient; a severely uneven split can reduce power. A modest difference in group sizes is often less consequential.</p>
+<p>The second concern is covariate imbalance. Participant characteristics can be split unevenly across groups by chance, even when the group sizes themselves are equal. Proper randomisation still gives an unbiased treatment-effect estimate <em>in expectation</em>, but an unlucky split can reduce precision and make one realised experiment more sensitive to modelling choices.</p>
 <p>For instance, let’s say you’re running an educational intervention to improve the maths ability of your students. You have a treatment group who receive the intervention, and a control group who are taught as normal. At baseline, you notice that a small subset students are already performing much better than the others. If these students are all assigned to the intervention group, this will cause the intervention to look more effective than it really is. Likewise, if these students are all assigned to the control group, the intervention will appear less effective than it really is.</p>
-<p>Now, randomisation <em>should</em> mean that these students are split roughly evenly across the two expeirmental groups. However, group imbalance makes it more likely that the high ability students are not spread evenly across the two groups, introducing a potential bias into the results.</p>
-<p>Unfortunately, this issue is a particularly tricky one, because it’s hard to be sure how much it may have affected the experiment. Once the experiment has ended and we know how participants were allocated, we <em>can</em> check whether or not potentially confounding variables were spread evenly across the experimental groups. But, we likely won’t have measured <em>all</em> of the possible confounding variables, and we can only know about the variables that we <em>do</em> measure.</p>
+<p>Randomisation means that neither group should receive those students systematically. But in a finite sample, chance can still place more of them in one group than the other.</p>
+<p>This is one reason to pre-specify adjustment for important baseline variables, rather than deciding what to control for after looking at the results. We can inspect the balance of measured variables, but we will not have measured every possible characteristic.</p>
 </div>
 <div id="if-not-simple-randomisation-what-else" class="section level2">
 <h2>If Not Simple Randomisation, What Else?</h2>
@@ -164,9 +158,9 @@ table(block_randomise(90, 3, 9))</code></pre>
 </div>
 <div id="ab-testing-in-the-world-of-tech" class="section level2">
 <h2>A/B Testing In The World of Tech</h2>
-<p>When sample sizes are small, you’re probably better off avoiding simpe randomisation. But, what about in the world of tech and A/B testing? Should we be avoiding simple randomisation?</p>
-<p>Well… here it feels a bit more of a toss up. On the one hand, sample sizes in tech tend to be larger, meaning that the probability of group imbalance is much smaller. It’s also by far the simplest method of randomisation available.</p>
-<p>That being said, downsides of blocked randomisation tend to revolve around the added risk of investigator bias - which is typically less of a problem in tech setting since the intervention is carried out by a computer. So, I’d say it usually doesn’t hurt to implement a slightly more complicated randomisation method.</p>
+<p>When samples are small, or close balance is operationally important, restricted approaches such as blocked or stratified randomisation can be useful. But what about in the world of tech and A/B testing?</p>
+<p>Simple randomisation remains statistically valid. In many tech experiments, large samples mean that a large relative difference in group sizes is unlikely, and it is by far the simplest method available.</p>
+<p>Blocked or stratified randomisation can still be worthwhile when tighter allocation or balance on a few important variables would improve precision. The analysis should account for the randomisation design used.</p>
 <p>In my opinion, though, the most important thing is to be making an informed choice; think about what randomisation methods are available, their respective strengths and weaknesses, and decide which is the most suitable for your study. Don’t just let some A/B testing software take the decision entirely out of your hands.</p>
 </div>
 <div class="footnotes">

@@ -2,6 +2,7 @@
 title: "Animal Crossing New Horizons: A New Birthday Problem"
 author: "Sophie Bennett"
 date: "2020-05-06"
+playground: true
 output: html_document
 ---
 
@@ -19,14 +20,24 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r libs, include=FALSE}
 library(tidyverse)
-extrafont::loadfonts(device="win")
+
+theme_playground <- function() {
+  theme_minimal(base_family = "sans", base_size = 12) +
+    theme(
+      panel.grid.minor = element_blank(),
+      plot.title = element_text(face = "bold", size = 15, hjust = 0),
+      plot.title.position = "plot",
+      axis.title = element_text(colour = "#46504E"),
+      axis.text = element_text(colour = "#46504E")
+    )
+}
 ```
 
 In a room of 23 people, what's the probability that at least two of them will share the same birthday? The answer is around 50%, a lot more than people usually expect.
 
 This is an example of the classic [Birthday Problem](https://en.wikipedia.org/wiki/Birthday_problem). The trick to calculating it is to start by calculating the **complement**,  - i.e. the probability that _no one_ in the room shares the same birthday. Then, this probability is subtracted from 1:
 
-![](/posts/birthdays-animal-crossing_files/bday-problem.PNG)
+$$1 - \frac{365!}{365^n(365-n)!}$$
 
 (I won't go into why this works here, as there are already plenty of good explanations out there on the internet).
 
@@ -92,22 +103,22 @@ bday_per_date <- villagers %>%
 # calendar tile plot
 bday_per_date %>% 
   ggplot(aes(monthweek, weekday, fill = num_villagers)) +
-  geom_tile(colour = "gray98", alpha = 0.9) +
-  geom_text(aes(label = monthday), size = 2.5, alpha = 0.9, colour = "gray20") +
+  geom_tile(colour = "white", size = 0.5) +
+  geom_text(aes(label = monthday), size = 2.4, colour = "#34413F") +
   facet_wrap(~month) +
   labs(x = "Week of Month",
        y = "",
        fill = "No. of Birthdays",
        title = "Animal Crossing Villager Birthdays") +
-  theme(text = element_text(family = "Arial Nova"),
-        panel.background = element_rect(fill = "gray98"),
+  theme_playground() +
+  theme(panel.background = element_rect(fill = "#F6F8F7", colour = NA),
         panel.grid = element_blank(),
         legend.text = element_text(size = 8),
-        legend.title = element_text(size = 10, colour = "gray10"),
-        axis.title = element_text(colour = "gray10"),
-        plot.title = element_text(size = 14),
-        strip.background = element_rect(fill = "#cff5f5")) +
-  scale_fill_gradient(low = "#FFC371", high = "#FF5F6D", breaks = c(0, 1, 2))  
+        legend.title = element_text(size = 9),
+        strip.background = element_rect(fill = "#DCEFEB", colour = NA),
+        strip.text = element_text(face = "bold", colour = "#315C56")) +
+  scale_fill_gradientn(colours = c("#F3F6F5", "#73B7AA", "#D66A55"),
+                       values = scales::rescale(c(0, 1, 2)), breaks = c(0, 1, 2))
 
 ```
 </div>
@@ -169,16 +180,18 @@ Finally, we can plot a histogram showing the number of villagers sharing a birth
 obs_duplicates %>% 
   ggplot() +
   geom_histogram(aes(num_sharing_villagers), 
-                 alpha = 0.8, 
-                 fill = "#FFC371",
+                 fill = "#73B7AA",
+                 colour = "white",
+                 size = 0.25,
                  bins = 30) +
   labs(x = "Number of Villagers With a Shared Birthday",
-       y = "Frequency") +
-  theme_minimal() +
-  theme(text = element_text(family = "Arial Nova"),
-        axis.title.x = element_text(vjust = -0.2, colour = "gray10"),
-        axis.title.y = element_text(vjust = 1.2, colour = "gray10")) +
-  geom_vline(xintercept = 257, linetype = "dashed", size = 1, colour = "gray75")
+       y = "Frequency",
+       title = "Simulated villagers sharing a birthday") +
+  theme_playground() +
+  theme(panel.grid.major.x = element_blank()) +
+  geom_vline(xintercept = 257, linetype = "dashed", size = 0.8, colour = "#D66A55") +
+  annotate("text", x = 259, y = Inf, label = "Mean ≈ 257", hjust = 0,
+           vjust = 1.5, colour = "#A44F3E", size = 3.4)
 
 ```
 </div>

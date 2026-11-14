@@ -5,18 +5,6 @@ date: "20 Apr 2021"
 output: html_document
 ---
 
-<style>
-  pre.r { 
-    color:#000;
-    background-color:#ECECEC;
-  }
-  
-  div.highlightsql pre { 
-    color:#000;
-    background-color:#ECECEC;
-  }
-</style>
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, error = FALSE)
 ```
@@ -34,11 +22,11 @@ payments <- read_csv("../../resources/data-cleaning-mistakes/example-data-2.csv"
 
 ```
 
-Recently, I've been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What's more, data mistakes are often be semi-invisible; they don’t result in a website failing to load, or code not running. Instead, we obtain some data, an analysis or model is produced - it’s just the _wrong_ data, an inaccurate model, or the _wrong_ conclusion.
+Recently, I've been thinking a lot about mistakes. Mistakes in how we store, handle and clean data can be extremely costly, but these mistakes are also incredibly easy to make. What's more, data mistakes are often semi-invisible: they don’t result in a website failing to load or code not running. Instead, we obtain some data and produce an analysis or model—it’s just the _wrong_ data, an inaccurate model or the _wrong_ conclusion.
 
 So how do we identify and prevent errors before they cost us? Compulsory code review can certainly help us to avoid mistakes. But relying solely on code review to detect errors is a risky strategy that places heavy burden on the reviewer. 
 
-That's why, as much as possible, it's good to write tests and assertations that systematically check for common data mistakes. 
+That's why, as much as possible, it's good to write tests and assertions that systematically check for common data mistakes.
 
 Some things are undoubtedly easier to test than others; it's easier to check that some analysis code does what you think it does than to test that you've chosen the correct statistical tests (although you could write tests to check that the assumptions of a statistical test are met). 
 
@@ -46,32 +34,32 @@ On the other hand, data cleaning is a part of the analysis process that I believ
 
 It’s not easy to anticipate every potential source of error. However, there are at least some mistakes that I believe crop up commonly, that I’ve _definitely_ made myself, and that I’ve watched many others make:
 
-* Row Explosion During Joins
-* Accidental Filtering of Null/NAs
-* Case-When Categorisation Mistakes
-* WHERE Statements in SQL That Aren't What They Seem
+| Mistake | What goes wrong | Useful guardrail |
+|:--|:--|:--|
+| Row explosion during joins | A supposedly one-to-one join duplicates rows | Check row counts and key uniqueness |
+| Accidental filtering of missing values | A comparison silently drops `NA` or `NULL` rows | Check expected row counts and missingness |
+| `case_when()` ordering mistakes | A broad condition captures rows before a specific one | Inspect counts for every resulting category |
+| Misleading SQL filters | SQL's three-valued logic produces unexpected results | Make null handling explicit and test the result |
 
 None of these mistakes are unavoidable - so as well as explain the mistake with a worked example, I’m going to go through the tests I use to identify these mistakes in my own code. 
 
 To explain what I mean by each of these mistakes, and show how they can be prevented, I'm going to use two small, fake data sets. First, the `users` table, a table of imaginary users who signed up to an imaginary website on either a trial or paying plan.
 
-<div class="highlight">
-```{r}
-users %>% 
-  head(5)
+```{r users-preview, echo=FALSE}
+users %>%
+  head(5) %>%
+  knitr::kable(caption = "Example users")
 ```
-</div>
 
 Second, a table of purchases made by our imaginary users, in a table called `payments`.
 
-<div class="highlight">
-```{r}
-payments %>% 
-  head(5)
+```{r payments-preview, echo=FALSE}
+payments %>%
+  head(5) %>%
+  knitr::kable(caption = "Example payments")
 ```
-</div>
 
-Without further avail, let's look at these mistakes.
+Without further ado, let's look at these mistakes.
 
 ## Mistake 1: Row Explosion During Joins
 

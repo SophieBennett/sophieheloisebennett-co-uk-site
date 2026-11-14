@@ -2,6 +2,7 @@
 title: "Scraping Government Search Registers (with BeautifulSoup)"
 author: "Sophie Bennett"
 date: "30 Sep 2020"
+playground: true
 output: html_document
 ---
 
@@ -345,5 +346,4 @@ schools_df.to_csv("school-page-links.csv")
 
 ```
 </div>
-
 
