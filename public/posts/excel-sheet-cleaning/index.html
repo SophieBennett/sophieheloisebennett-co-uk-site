@@ -18,20 +18,20 @@ Messy data can come with a vast array of different problems."/>
 <meta property="og:description" content="I spend a great deal of my spare time searching for, and playing with, open source data. Although it’s great fun, a challenge of working with this kind of data is that it usually isn’t stored in a tidy format. Very occasionally, I’ll find a carefully constructed csv made by a generous soul, but most often what I get is a somewhat messy Excel file.
 Messy data can come with a vast array of different problems." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://sophieheloisebennett.com/posts/excel-sheet-cleaning/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://www.sophieheloisebennett.com/posts/excel-sheet-cleaning/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2020-02-23T00:00:00+00:00" />
 <meta property="article:modified_time" content="2020-02-23T00:00:00+00:00" />
 
 
     
-      <base href="https://sophieheloisebennett.com/posts/excel-sheet-cleaning/">
+      <base href="https://www.sophieheloisebennett.com/posts/excel-sheet-cleaning/">
     
     <title>
   Cleaning Dirty Excel Sheets in R · Dr Sophie Bennett
 </title>
 
     
-      <link rel="canonical" href="https://sophieheloisebennett.com/posts/excel-sheet-cleaning/">
+      <link rel="canonical" href="https://www.sophieheloisebennett.com/posts/excel-sheet-cleaning/">
     
 
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700" rel="stylesheet">
@@ -41,7 +41,7 @@ Messy data can come with a vast array of different problems." />
     
       
       
-      <link rel="stylesheet" href="https://sophieheloisebennett.com/css/coder.min.ed86bdf30a2eb89a4275c19c4dbc7049cf9a6a03703e463e764a543757068405.css" integrity="sha256-7Ya98wouuJpCdcGcTbxwSc&#43;aagNwPkY&#43;dkpUN1cGhAU=" crossorigin="anonymous" media="screen" />
+      <link rel="stylesheet" href="https://www.sophieheloisebennett.com/css/coder.min.ed86bdf30a2eb89a4275c19c4dbc7049cf9a6a03703e463e764a543757068405.css" integrity="sha256-7Ya98wouuJpCdcGcTbxwSc&#43;aagNwPkY&#43;dkpUN1cGhAU=" crossorigin="anonymous" media="screen" />
     
 
     
@@ -49,15 +49,15 @@ Messy data can come with a vast array of different problems." />
     
 
     
-      <link rel="stylesheet" href="https://sophieheloisebennett.com/css/custom.css" />
+      <link rel="stylesheet" href="https://www.sophieheloisebennett.com/css/custom.css" />
     
 
     
 
     
 
-    <link rel="icon" type="image/png" href="https://sophieheloisebennett.com/images/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="https://sophieheloisebennett.com/images/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="https://www.sophieheloisebennett.com/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.sophieheloisebennett.com/images/favicon-16x16.png" sizes="16x16">
 
     <meta name="generator" content="Hugo 0.111.3">
   </head>
@@ -68,7 +68,7 @@ Messy data can come with a vast array of different problems." />
     <main class="wrapper">
       <nav class="navigation">
   <section class="container">
-    <a class="navigation-title" href="https://sophieheloisebennett.com/">
+    <a class="navigation-title" href="https://www.sophieheloisebennett.com/">
       Dr Sophie Bennett
     </a>
     
@@ -78,19 +78,19 @@ Messy data can come with a vast array of different problems." />
       
         
           <li class="navigation-item">
-            <a class="navigation-link" href="https://sophieheloisebennett.com/about/">About</a>
+            <a class="navigation-link" href="https://www.sophieheloisebennett.com/about/">About</a>
           </li>
         
           <li class="navigation-item">
-            <a class="navigation-link" href="https://sophieheloisebennett.com/posts/">Blog</a>
+            <a class="navigation-link" href="https://www.sophieheloisebennett.com/posts/">Blog</a>
           </li>
         
           <li class="navigation-item">
-            <a class="navigation-link" href="https://sophieheloisebennett.com/playground/">Playground</a>
+            <a class="navigation-link" href="https://www.sophieheloisebennett.com/playground/">Playground</a>
           </li>
         
           <li class="navigation-item">
-            <a class="navigation-link" href="https://sophieheloisebennett.com/contact/">Contact me</a>
+            <a class="navigation-link" href="https://www.sophieheloisebennett.com/contact/">Contact me</a>
           </li>
         
       
@@ -130,8 +130,8 @@ Messy data can come with a vast array of different problems." />
       <div>
         
         
-<link href="https://sophieheloisebennett.com/rmarkdown-libs/tabwid/tabwid.css" rel="stylesheet" />
-<script src="https://sophieheloisebennett.com/rmarkdown-libs/tabwid/tabwid.js"></script>
+<link href="https://www.sophieheloisebennett.com/rmarkdown-libs/tabwid/tabwid.css" rel="stylesheet" />
+<script src="https://www.sophieheloisebennett.com/rmarkdown-libs/tabwid/tabwid.js"></script>
 
 
 <style>
@@ -150,7 +150,7 @@ Messy data can come with a vast array of different problems." />
 </ol>
 <p>My solutions to these issues definitely aren’t the only ones available, and probably aren’t always the most elegant (if you have a more elegant solution please hit me up!). But, these solutions have served me pretty well, so I figured that they were worth sharing.</p>
 <p>To demonstrate my solutions to messy data, I’m using a station passengers number dataset I obtained from TfL. The data gives the average daily entries and exits for each tube station, from 2007-2017. (The data is available <a href="https://tfl.gov.uk/corporate/publications-and-reports/underground-services-performance">here on the TfL website.)</a></p>
-<p>This is what the dataset looks like in Excel: <img src="https://sophieheloisebennett.com/posts/excel-sheet-cleaning_files/passengerdata.PNG" /></p>
+<p>This is what the dataset looks like in Excel: <img src="https://www.sophieheloisebennett.com/posts/excel-sheet-cleaning_files/passengerdata.PNG" /></p>
 <p>Now, all 4 of the problems listed above appear in this dataset:</p>
 <ol style="list-style-type: decimal">
 <li>The column titles are spread across 3 rows</li>
