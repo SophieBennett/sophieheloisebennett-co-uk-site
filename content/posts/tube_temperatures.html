@@ -6,10 +6,10 @@ output: html_document
 
 
 
-<p>Now, I’m the kind of big tube fanatic who has completed the <a href="https://www.sporcle.com/games/sjb300/london-underground">“Can you name all the stations on the London Underground?” sporcle quiz</a> more times than I can count. But even I have to acknowledge one major drawback of the london tube: it can get <em>really</em> hot down there!</p>
+<p>Now, I’m the kind of big tube fanatic who has completed the <a href="https://www.sporcle.com/games/sjb300/london-underground">“Can you name all the stations on the London Underground?” Sporcle quiz</a> more times than I can count. But even I have to acknowledge one major drawback of the London Underground: it can get <em>really</em> hot down there!</p>
 <p>I’ve long suspected the Central line of being the biggest offender in this department, putting it near the bottom in my ranking of favourite tube lines. (The best line, in case you’re wondering, is of course, the Victoria line - as recently evidenced by <a href="https://twitter.com/geofftech/status/1190219484151386113">Geoff Marshall’s twitter poll.</a>)</p>
 <p>But, I’d been lacking hard data to support my theory.</p>
-<p>Thankfully, I discovered recently that TfL have released a dataset of average monthly temparatures across each tube line, giving me the opportunity to do some fun tube-related analyses <em>and</em> attempt to make some cool TfL themed graphs. You can download the data yourself <a href="https://data.london.gov.uk/download/london-underground-average-monthly-temperatures/b01c7853-fff2-4781-9755-9b5e1404d78c/lu-average-monthly-temperatures.csv">here.</a></p>
+<p>Thankfully, I discovered recently that TfL have released a dataset of average monthly temperatures across each tube line, giving me the opportunity to do some fun tube-related analyses <em>and</em> attempt to make some cool TfL-themed graphs. You can download the data yourself <a href="https://data.london.gov.uk/download/london-underground-average-monthly-temperatures/b01c7853-fff2-4781-9755-9b5e1404d78c/lu-average-monthly-temperatures.csv">here.</a></p>
 <p>A few things to note about this data:</p>
 <ul>
 <li>The data runs from 2013-2018. The data don’t end cleanly on the same month for each tube line.</li>
@@ -17,13 +17,21 @@ output: html_document
 <li>The temperatures are measured at platform level. I’m not sure if temperatures are taken at every station and then averaged or not.</li>
 <li>The District, Circle, Hammersmith &amp; City, and Metropolitan lines are grouped together into “sub-surface lines”.</li>
 </ul>
+<table>
+<thead><tr><th>Dataset feature</th><th>Detail</th></tr></thead>
+<tbody>
+<tr><td>Coverage</td><td>Monthly observations from 2013–2018</td></tr>
+<tr><td>Measure</td><td>Average platform temperature in °C</td></tr>
+<tr><td>Comparison</td><td>Eight Underground and grouped sub-surface lines</td></tr>
+<tr><td>Important limitation</td><td>Lines do not all end on the same month</td></tr>
+</tbody>
+</table>
 <p>With that, time to look at the data.</p>
 <div id="visualisation" class="section level2">
 <h2>Visualisation</h2>
-<hr />
 <p>I started by making some line plots with a playful TfL theme.</p>
 <p><img src="/posts/tube_temperatures_files/figure-html/lineplot-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>The line plot is imo a little messy, but it does already draw out some interesting features. For instance, the hottest line is actually the <em>Bakerloo</em>, followed closely by the Central line. On the other hand, the sub-surface lines are the coldest lines, which isn’t super surprising.</p>
+<p>The small multiples draw out some interesting features. For instance, the hottest line is actually the <em>Bakerloo</em>, followed closely by the Central line. On the other hand, the sub-surface lines are the coldest lines, which isn’t super surprising.</p>
 <p>There’s also clear periodicity in the data driven by seasonal changes; the temperatures rise sharply during the summer and fall again over the winter. Interestingly, the sub-surface lines seem more susceptible to changes in season than other lines.</p>
 <p>Lastly, if you look carefully, the temperatures seem to be getting slightly hotter each year. We can see this more clearly by averaging temperatures across years:</p>
 <p><img src="/posts/tube_temperatures_files/figure-html/lineplot%202-1.png" width="672" style="display: block; margin: auto;" /></p>
@@ -33,7 +41,6 @@ output: html_document
 </div>
 <div id="modelling-tube-temperatures" class="section level2">
 <h2>Modelling Tube Temperatures</h2>
-<hr />
 <p>Having visualised the data, I immediately wondered how well I could model the large periodicity in temperature, along with the other interesting effects in the data using multiple linear regression.</p>
 <p>I started by making a simple additive model with year, month and tube line as my predictor variables.</p>
 <table style="border-collapse:collapse; border:none;">
@@ -1155,7 +1162,6 @@ R<sup>2</sup> / R<sup>2</sup> adjusted
 </div>
 <div id="further-exploration-passenger-numbers" class="section level2">
 <h2>Further Exploration: Passenger Numbers</h2>
-<hr />
 <p>Now, the models above achieve a pretty good fit using just three variables; year, month and tube line. But, what exactly does the variable “tube line” represent here? For instance, what is it about the Central line that makes it hotter than the Jubilee?</p>
 <p>One possible difference might be in the number of passengers on each line, with more passengers leading to hotter temperatures. On the otherhand, the differences in temperatures across tube lines could also be driven by structural differences between the lines, such as:</p>
 <ul>

@@ -2,6 +2,7 @@
 title: "Is Your Box of Celebrations Chocolates Biased?"
 author: "Sophie Bennett"
 date: "16 Apr 2020"
+playground: true
 output: html_document
 ---
 
@@ -19,7 +20,19 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE)
 ```{r libs, include = FALSE}
 
 library(tidyverse)
-extrafont::loadfonts(device = "win")
+
+theme_playground <- function() {
+  theme_minimal(base_family = "sans", base_size = 12) +
+    theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major.y = element_blank(),
+      plot.title = element_text(face = "bold", size = 15, hjust = 0),
+      plot.subtitle = element_text(colour = "#66706E"),
+      plot.title.position = "plot",
+      axis.title = element_text(colour = "#46504E"),
+      axis.text = element_text(colour = "#46504E")
+    )
+}
 
 ```
 
@@ -35,11 +48,11 @@ celebrations <- tribble(~type, ~count, ~popularity,
                         "Bounty", 36, 24,
                         "Milky Way", 44, 16)
 
-celebrations_red <- "#D92121"
+celebrations_red <- "#A23E48"
 
-celebrations_gold <- "#D7BE69"
+celebrations_gold <- "#D6B25E"
 
-celebrations_brown <- "#8A440A"
+celebrations_brown <- "#5C3B2E"
 
 
 ```
@@ -54,20 +67,13 @@ And with that, we finally had the data we'd been longing for:
 
 celebrations %>% 
   ggplot(aes(reorder(type, count), count)) +
-  geom_col(fill = celebrations_red, alpha = 0.9) +
-  theme_minimal() +
+  geom_col(fill = celebrations_red, width = 0.72) +
   labs(x = "",
        y = "Total in Box",
        title = "Content of Our 2.4kg Celebrations Box") +
   coord_flip() +
-  geom_hline(yintercept = 33.375, linetype = "dashed", colour = celebrations_brown, size = 1.3) +
-  theme(text = element_text(family = "Arial Nova"),
-        axis.title = element_text(size = 10, colour = "gray20"),
-        axis.text = element_text(size = 9),
-        axis.ticks = element_line(colour = NA),
-        plot.title = element_text(hjust = 0.5, size = 13),
-        panel.background = element_rect(colour = celebrations_gold, size = 2),
-        panel.grid = element_blank())
+  geom_hline(yintercept = 33.375, linetype = "dashed", colour = celebrations_brown, size = 0.8) +
+  theme_playground()
 
 ```
 
@@ -154,16 +160,15 @@ binom_dist <- tibble(num_mars= x, probability= y)
 
 binom_dist %>% 
   ggplot(aes(num_mars, probability)) +
-  geom_point(alpha = 0.7, size = 2) +
-  geom_vline(xintercept = 52, linetype = "dashed", size = 1) +
-  labs(x = "Number of Mars Bars in Box",
+  geom_area(fill = "#EADFD7", alpha = 0.8) +
+  geom_line(colour = celebrations_brown, size = 0.9) +
+  geom_vline(xintercept = 52, linetype = "dashed", size = 0.8, colour = celebrations_red) +
+  labs(title = "Where 52 Mars bars sits in the expected distribution",
+       x = "Number of Mars Bars in Box",
        y = "Probability") +
-  theme_minimal() +
-  theme(text = element_text(family = "Arial Nova"),
-        axis.title = element_text(size = 10, colour = "gray20"),
-        axis.text = element_text(size = 9),
-        panel.grid = element_line(colour = "#fcf3d4")) +
-  annotate("text", x = 77, y = 0.003, label = "52 Mars Bars")
+  theme_playground() +
+  annotate("text", x = 56, y = 0.01, label = "52 observed", hjust = 0,
+           colour = celebrations_red, size = 3.4)
 
 ```
 
@@ -197,22 +202,17 @@ celebrations %>%
     TRUE ~ "4"
   )) %>% 
   ggplot(aes(reorder(type, popularity), popularity)) +
-  geom_col(aes(fill = position), alpha = 0.9) +
-  theme_minimal() +
+  geom_col(aes(fill = position), width = 0.72) +
   labs(x = "",
        y = "Percentage",
-       title = "% of Celebrations-Eating Britons Who Prefer The Following Chocolate:",
+       title = "Britons' favourite Celebrations chocolates",
        subtitle = "Data obtained from YouGov.co.uk") +
   coord_flip() +
-  theme(text = element_text(family = "Arial Nova"),
-        panel.background = element_rect(colour = celebrations_gold, size = 1.4),
-        axis.title = element_text(size = 10, colour = "gray20"),
-        axis.text = element_text(size = 9),
-        panel.grid = element_blank(),
-        plot.title = element_text(size = 13),
+  theme_playground() +
+  theme(panel.grid.major.x = element_line(colour = "#E7ECEA"),
         legend.position = "none",
-        plot.subtitle = element_text(size = 8)) +
-  scale_fill_manual(values = c(celebrations_red, celebrations_brown, celebrations_gold, "gray80"))
+        plot.subtitle = element_text(size = 9)) +
+  scale_fill_manual(values = c(celebrations_red, celebrations_brown, celebrations_gold, "#DCE3E1"))
 
 ```
 
@@ -226,6 +226,3 @@ We may never know. But one thing I do know is that I won't be sharing my Maltese
 
 ## DISCLAIMER
 This blogpost is all made in the name of fun and probability - I have no beef with Mars Inc ^-^
-
-
-

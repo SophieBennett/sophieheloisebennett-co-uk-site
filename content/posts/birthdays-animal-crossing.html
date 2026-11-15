@@ -2,6 +2,7 @@
 title: "Animal Crossing New Horizons: A New Birthday Problem"
 author: "Sophie Bennett"
 date: "2020-05-06"
+playground: true
 output: html_document
 ---
 
@@ -15,10 +16,7 @@ output: html_document
 </style>
 <p>In a room of 23 people, what’s the probability that at least two of them will share the same birthday? The answer is around 50%, a lot more than people usually expect.</p>
 <p>This is an example of the classic <a href="https://en.wikipedia.org/wiki/Birthday_problem">Birthday Problem</a>. The trick to calculating it is to start by calculating the <strong>complement</strong>, - i.e. the probability that <em>no one</em> in the room shares the same birthday. Then, this probability is subtracted from 1:</p>
-<div class="figure">
-<img src="/posts/birthdays-animal-crossing_files/bday-problem.PNG" />
-
-</div>
+<p><span class="math display">\[1 - \frac{365!}{365^n(365-n)!}\]</span></p>
 <p>(I won’t go into why this works here, as there are already plenty of good explanations out there on the internet).</p>
 <p>But, what does this have to do with Animal Crossing New Horizons?</p>
 <p>Well, this week’s #TidyTuesday dataset is Animal Crossing themed! Amongst the csvs <a href="https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-05-05">provided on github</a>, is one called <code>villagers.csv</code>, displaying information about the 391 possible villagers that might move to your island on the game.</p>
@@ -86,22 +84,22 @@ bday_per_date &lt;- villagers %&gt;%
 # calendar tile plot
 bday_per_date %&gt;% 
   ggplot(aes(monthweek, weekday, fill = num_villagers)) +
-  geom_tile(colour = &quot;gray98&quot;, alpha = 0.9) +
-  geom_text(aes(label = monthday), size = 2.5, alpha = 0.9, colour = &quot;gray20&quot;) +
+  geom_tile(colour = &quot;white&quot;, size = 0.5) +
+  geom_text(aes(label = monthday), size = 2.4, colour = &quot;#34413F&quot;) +
   facet_wrap(~month) +
   labs(x = &quot;Week of Month&quot;,
        y = &quot;&quot;,
        fill = &quot;No. of Birthdays&quot;,
        title = &quot;Animal Crossing Villager Birthdays&quot;) +
-  theme(text = element_text(family = &quot;Arial Nova&quot;),
-        panel.background = element_rect(fill = &quot;gray98&quot;),
+  theme_playground() +
+  theme(panel.background = element_rect(fill = &quot;#F6F8F7&quot;, colour = NA),
         panel.grid = element_blank(),
         legend.text = element_text(size = 8),
-        legend.title = element_text(size = 10, colour = &quot;gray10&quot;),
-        axis.title = element_text(colour = &quot;gray10&quot;),
-        plot.title = element_text(size = 14),
-        strip.background = element_rect(fill = &quot;#cff5f5&quot;)) +
-  scale_fill_gradient(low = &quot;#FFC371&quot;, high = &quot;#FF5F6D&quot;, breaks = c(0, 1, 2))  </code></pre>
+        legend.title = element_text(size = 9),
+        strip.background = element_rect(fill = &quot;#DCEFEB&quot;, colour = NA),
+        strip.text = element_text(face = &quot;bold&quot;, colour = &quot;#315C56&quot;)) +
+  scale_fill_gradientn(colours = c(&quot;#F3F6F5&quot;, &quot;#73B7AA&quot;, &quot;#D66A55&quot;),
+                       values = scales::rescale(c(0, 1, 2)), breaks = c(0, 1, 2))</code></pre>
 <p><img src="/posts/birthdays-animal-crossing_files/figure-html/calendarplot-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <p>So, there are 30 non-unique birthday dates, and 60 villagers share a birthday with another villager, meaning that no more than two villagers share a birthday. Hmmm…</p>
@@ -139,16 +137,17 @@ obs_duplicates &lt;- tibble(sample_num = seq(1:50000),
 <pre class="r"><code>obs_duplicates %&gt;% 
   ggplot() +
   geom_histogram(aes(num_sharing_villagers), 
-                 alpha = 0.8, 
-                 fill = &quot;#FFC371&quot;,
+                 fill = &quot;#73B7AA&quot;,
+                 colour = &quot;white&quot;,
+                 size = 0.25,
                  bins = 30) +
   labs(x = &quot;Number of Villagers With a Shared Birthday&quot;,
        y = &quot;Frequency&quot;) +
-  theme_minimal() +
-  theme(text = element_text(family = &quot;Arial Nova&quot;),
-        axis.title.x = element_text(vjust = -0.2, colour = &quot;gray10&quot;),
-        axis.title.y = element_text(vjust = 1.2, colour = &quot;gray10&quot;)) +
-  geom_vline(xintercept = 257, linetype = &quot;dashed&quot;, size = 1, colour = &quot;gray75&quot;)</code></pre>
+  theme_playground() +
+  theme(panel.grid.major.x = element_blank()) +
+  geom_vline(xintercept = 257, linetype = &quot;dashed&quot;, size = 0.8, colour = &quot;#D66A55&quot;) +
+  annotate(&quot;text&quot;, x = 259, y = Inf, label = &quot;Mean ≈ 257&quot;, hjust = 0,
+           vjust = 1.5, colour = &quot;#A44F3E&quot;, size = 3.4)</code></pre>
 <p><img src="/posts/birthdays-animal-crossing_files/figure-html/histogram-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <p>The simulated data shows us that on average, we would expect roughly 257 villagers to share a birthday with another villager.</p>

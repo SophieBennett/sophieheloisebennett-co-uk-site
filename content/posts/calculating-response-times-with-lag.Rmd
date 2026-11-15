@@ -2,6 +2,7 @@
 title: "Using Lag To Calculate Time Between Events in R and SQL"
 author: "Sophie Bennett"
 date: "29 Jul 2020"
+draft: true
 output: html_document
 ---
 

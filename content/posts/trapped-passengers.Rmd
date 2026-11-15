@@ -2,6 +2,7 @@
 title: "There Are People Trapped on the Underground"
 author: "Sophie Bennett"
 date: "26 Feb 2020"
+playground: true
 output: html_document
 ---
 
@@ -15,7 +16,19 @@ library(tidyverse)
 library(lubridate)
 library(scales)
 
-extrafont::loadfonts(device = "win")
+tube_colours <- c("Weekday" = "#315C56", "Saturday" = "#D28B3C", "Sunday" = "#A45C72")
+
+theme_playground <- function() {
+  theme_minimal(base_family = "sans", base_size = 12) +
+    theme(
+      panel.grid.minor = element_blank(),
+      plot.title = element_text(face = "bold", size = 15, hjust = 0),
+      plot.title.position = "plot",
+      axis.title = element_text(colour = "#46504E"),
+      axis.text = element_text(colour = "#46504E"),
+      legend.position = "bottom"
+    )
+}
 
 ```
 
@@ -37,20 +50,13 @@ station_flow %>%
   filter(flow_type == "Entry") %>% 
   summarise(total_daily_entries = sum(total)) %>% 
   ggplot(aes(as.character(year), total_daily_entries, group = day)) +
-  geom_line(aes(colour = day), size = 1.4, linetype = "longdash") +
+  geom_line(aes(colour = day), size = 1.1) +
   labs(title = "Tube Passenger Flow 2007-2017",
        x = "Year",
        y = "Daily Entries",
        colour = "") +
-  theme_minimal() +
-  scale_colour_manual(values = c("#FFCC00", "#006633", "#CC9999")) +
-  theme(legend.position = "bottom",
-        text = element_text(family = "Arial Nova"),
-        axis.text = element_text(size = 8),
-        axis.title.y = element_text(size = 9, hjust = 0.98, colour = "gray30"),
-        axis.title.x = element_text(size = 9, hjust = 0.97, colour = "gray30"),
-        legend.text = element_text(size = 9, colour = "gray30"),
-        plot.title = element_text(size = 12, face = "bold")) +
+  theme_playground() +
+  scale_colour_manual(values = tube_colours) +
   scale_y_continuous(labels = comma) 
 
 ```
@@ -75,31 +81,20 @@ station_flow_exits <- station_flow %>%
 
 station_flow_entries %>%  
   ggplot(aes(as.character(year), total_daily_entries, group = day)) +
-  geom_line(aes(colour = day, linetype = "longdash"), size = 1.4) +
+  geom_line(aes(colour = day, linetype = "Entries"), size = 1.1) +
   geom_line(data = station_flow_exits, 
             aes(as.character(year), total_daily_entries, group = day, 
-                                           colour = day, linetype = "dotdash"), 
-            size = 1.4) +
-  labs(title = "Tube Passenger Flow 2007-2017",
+                                           colour = day, linetype = "Exits"),
+            size = 1.1) +
+  labs(title = "Entries remain consistently above exits",
        x = "Year",
        y = "Daily Entries",
        colour = "") +
-  theme_minimal() +
-  scale_colour_manual(values = c("#FFCC00", "#006633", "#CC9999")) +
-  scale_linetype_manual(values = c("dotdash" = "dotdash", "longdash" = "longdash"),
-                        labels = c("Exits", "Entries"),
-                        name = "") +
-  theme(legend.position = "bottom",
-        text = element_text(family = "Arial Nova"),
-        axis.text = element_text(size = 8),
-        axis.title.y = element_text(size = 9, hjust = 0.98, colour = "gray30"),
-        axis.title.x = element_text(size = 9, hjust = 0.97, colour = "gray30"),
-        legend.text = element_text(size = 9, colour = "gray30"),
-        plot.title = element_text(size = 12, face = "bold")) +
+  theme_playground() +
+  scale_colour_manual(values = tube_colours) +
+  scale_linetype_manual(values = c("Entries" = "solid", "Exits" = "dashed"), name = "") +
   scale_y_continuous(labels = comma) +
-  guides(linetype = FALSE) +
-  annotate(geom = "text", x = c(11.35, 11.25), y = c(4700000, 4600000), 
-           label = c("Entries", "Exits"), size = 2.7, family = "Arial Nova", colour = "gray30")
+  guides(linetype = guide_legend(order = 1), colour = guide_legend(order = 2))
 
 ```
 
@@ -125,19 +120,18 @@ station_flow %>%
   filter(year == "2017") %>% 
   mutate(day = factor(day, levels = c("Weekday", "Saturday", "Sunday"), ordered = TRUE)) %>% 
   ggplot() +
-  geom_col(aes(reorder(station, flow_diff), flow_diff, fill = day), alpha = 0.7, position = "dodge") +
+  geom_col(aes(reorder(station, flow_diff), flow_diff, fill = day), width = 0.8) +
   facet_wrap(~day, nrow = 3) +
   labs(x = "",
        y = "Entries - Exits",
-       fill = "") +
-  theme_minimal() +
-  scale_fill_manual(values = c("#FFCC00", "#006633", "#CC9999")) +
+       fill = "",
+       title = "Entry-exit differences by station in 2017") +
+  theme_playground() +
+  scale_fill_manual(values = tube_colours) +
+  geom_hline(yintercept = 0, colour = "#65706E", size = 0.4) +
   theme(legend.position = "none",
-        text = element_text(family = "Arial Nova"),
         axis.text = element_text(size = 8),
-        axis.title.y = element_text(size = 9, hjust = 0.98, colour = "gray30"),
-        axis.text.x = element_blank(),
-        legend.text = element_text(size = 9, colour = "gray30"))
+        axis.text.x = element_blank())
 
 ```
 

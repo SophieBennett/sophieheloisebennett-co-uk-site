@@ -2,6 +2,7 @@
 title: "Gains Checker - An Adventure in Shiny Apps"
 author: "Sophie Bennett"
 date: "25 Apr 2020"
+draft: true
 output: html_document
 ---
 
@@ -160,4 +161,3 @@ Some of the more fun bits I had to figure out when making this app:
 
 
 I'm hoping to keep updating this dataset with more tasty food items. In the future I might also add some extra features to the app! Who knows, I might even use it as an opportunity to practice custom CSS.
-
